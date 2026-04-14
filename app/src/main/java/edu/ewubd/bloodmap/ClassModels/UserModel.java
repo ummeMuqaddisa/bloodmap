@@ -1,6 +1,6 @@
 package edu.ewubd.bloodmap.ClassModels;
 
-import org.json.JSONObject;
+import java.util.Date;
 
 public class UserModel {
     private String uid;
@@ -10,6 +10,22 @@ public class UserModel {
     private String bloodGroup;
     private String locationArea;
     private String contactNumber;
+    private String token;
+    private String profileImageUrl;
+    private double latitude;
+    private double longitude;
+    private int totalDonations;
+    private int totalRequests;
+    private String gender;
+    private Date dateOfBirth;
+    private String address;
+    private boolean isAvailableToDonate;
+    private Date lastDonationDate;
+    private Date nextEligibleDate;
+    private String status; // ACTIVE, BLOCKED
+    private String subscriptionPlan;
+    private Date createdAt;
+    private Date updatedAt;
 
     public UserModel() {
     }
@@ -22,6 +38,22 @@ public class UserModel {
         this.bloodGroup = "";
         this.locationArea = "";
         this.contactNumber = "";
+        this.token = "";
+        this.profileImageUrl = "";
+        this.latitude = 0.0;
+        this.longitude = 0.0;
+        this.totalDonations = 0;
+        this.totalRequests = 0;
+        this.gender = "";
+        this.dateOfBirth = null;
+        this.address = "";
+        this.isAvailableToDonate = true;
+        this.lastDonationDate = null;
+        this.nextEligibleDate = null;
+        this.status = "ACTIVE";
+        this.subscriptionPlan = "FREE";
+        this.createdAt = new Date();
+        this.updatedAt = new Date();
     }
 
     public boolean isAdmin() {
@@ -80,33 +112,131 @@ public class UserModel {
         this.contactNumber = contactNumber;
     }
 
-    public String toJson() {
-        try {
-            JSONObject json = new JSONObject();
-            json.put("uid", uid);
-            json.put("name", name);
-            json.put("email", email);
-            json.put("isAdmin", isAdmin);
-            json.put("bloodGroup", bloodGroup);
-            json.put("locationArea", locationArea);
-            json.put("contactNumber", contactNumber);
-            return json.toString();
-        } catch (Exception e) { return "{}"; }
+    public String getToken() {
+        return token;
     }
 
-    public static UserModel fromJson(String jsonStr) {
-        try {
-            JSONObject json = new JSONObject(jsonStr);
-            UserModel model = new UserModel(
-                json.optString("uid", ""),
-                json.optString("name", ""),
-                json.optString("email", "")
-            );
-            model.setAdmin(json.optBoolean("isAdmin", false));
-            model.setBloodGroup(json.optString("bloodGroup", ""));
-            model.setLocationArea(json.optString("locationArea", ""));
-            model.setContactNumber(json.optString("contactNumber", ""));
-            return model;
-        } catch (Exception e) { return new UserModel(); }
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public int getTotalDonations() {
+        return totalDonations;
+    }
+
+    public void setTotalDonations(int totalDonations) {
+        this.totalDonations = totalDonations;
+    }
+
+    public int getTotalRequests() {
+        return totalRequests;
+    }
+
+    public void setTotalRequests(int totalRequests) {
+        this.totalRequests = totalRequests;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public boolean isAvailableToDonate() {
+        return isAvailableToDonate;
+    }
+
+    public void setAvailableToDonate(boolean availableToDonate) {
+        this.isAvailableToDonate = availableToDonate;
+    }
+
+    public Date getLastDonationDate() {
+        return lastDonationDate;
+    }
+
+    public void setLastDonationDate(Date lastDonationDate) {
+        this.lastDonationDate = lastDonationDate;
+    }
+
+    public Date getNextEligibleDate() {
+        return nextEligibleDate;
+    }
+
+    public void setNextEligibleDate(Date nextEligibleDate) {
+        this.nextEligibleDate = nextEligibleDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getSubscriptionPlan() {
+        return subscriptionPlan;
+    }
+
+    public void setSubscriptionPlan(String subscriptionPlan) {
+        this.subscriptionPlan = subscriptionPlan;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

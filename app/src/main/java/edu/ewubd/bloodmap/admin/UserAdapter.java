@@ -48,6 +48,19 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         } else {
             holder.tvAdminBadge.setVisibility(View.GONE);
         }
+        
+        String status = user.getStatus();
+        if (status == null || status.isEmpty()) status = "ACTIVE";
+        holder.tvUserStatus.setText(status);
+        if (status.equalsIgnoreCase("BLOCKED")) {
+            holder.tvUserStatus.setBackgroundColor(0xFFFFCDD2);
+            holder.tvUserStatus.setTextColor(0xFFD32F2F);
+        } else {
+            holder.tvUserStatus.setBackgroundColor(0xFFE8F5E9);
+            holder.tvUserStatus.setTextColor(0xFF2E7D32);
+        }
+        
+        holder.tvUserDonations.setText("Donations: " + user.getTotalDonations());
     }
 
     @Override
@@ -56,7 +69,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     static class UserViewHolder extends RecyclerView.ViewHolder {
-        TextView tvUserName, tvUserEmail, tvUserContact, tvUserLocation, tvUserBloodGroup, tvAdminBadge;
+        TextView tvUserName, tvUserEmail, tvUserContact, tvUserLocation, tvUserBloodGroup, tvAdminBadge, tvUserStatus, tvUserDonations;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -66,6 +79,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             tvUserLocation = itemView.findViewById(R.id.tvUserLocation);
             tvUserBloodGroup = itemView.findViewById(R.id.tvUserBloodGroup);
             tvAdminBadge = itemView.findViewById(R.id.tvAdminBadge);
+            tvUserStatus = itemView.findViewById(R.id.tvUserStatus);
+            tvUserDonations = itemView.findViewById(R.id.tvUserDonations);
         }
     }
 }

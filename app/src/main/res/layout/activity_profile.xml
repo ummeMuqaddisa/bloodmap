@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF"
+    android:background="#F5F5F5"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -24,96 +24,285 @@
             app:tint="#FFFFFF" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:layout_weight="1"
             android:text="My Profile"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btnToggleEdit"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@android:drawable/ic_menu_edit"
+            app:tint="#FFFFFF"
+            android:background="?attr/selectableItemBackgroundBorderless" />
     </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:padding="16dp">
+        android:fillViewport="true">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:layout_height="wrap_content">
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="50dp"
-                app:cardBackgroundColor="#E0E0E0"
-                app:cardElevation="0dp">
-                <ImageView
+            <!-- ================= VIEW MODE ================= -->
+            <LinearLayout
+                android:id="@+id/llViewMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:visibility="visible">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="50dp"
+                    app:cardBackgroundColor="#E0E0E0"
+                    app:cardElevation="2dp">
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_myplaces" />
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    android:id="@+id/tvViewName"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@android:drawable/ic_menu_myplaces" />
-            </androidx.cardview.widget.CardView>
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="John Doe"
+                    android:textColor="#333333"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:text="Settings"
-                android:textColor="#333333"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tvViewEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="john@example.com"
+                    android:textColor="#666666"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="16dp"/>
 
-            <EditText
-                android:id="@+id/etFullName"
+                <!-- Badges -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="24dp">
+                    
+                    <TextView
+                        android:id="@+id/tvViewBloodGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#D11A2A"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp"
+                        android:text="O+"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tvViewStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#E8F5E9"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp"
+                        android:text="ACTIVE"
+                        android:textColor="#2E7D32"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    app:contentPadding="16dp"
+                    android:layout_marginBottom="16dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        
+                        <TextView android:text="Contact Information" android:textStyle="bold" android:textColor="#D11A2A" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+                        <TextView android:id="@+id/tvViewPhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:layout_marginBottom="4dp"/>
+                        <TextView android:id="@+id/tvViewLocation" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:layout_marginBottom="4dp"/>
+                        <TextView android:id="@+id/tvViewAddress" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    app:contentPadding="16dp"
+                    android:layout_marginBottom="16dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        
+                        <TextView android:text="Personal Details" android:textStyle="bold" android:textColor="#D11A2A" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+                        <TextView android:id="@+id/tvViewGender" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:layout_marginBottom="4dp"/>
+                        <TextView android:id="@+id/tvViewDob" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    app:contentPadding="16dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        
+                        <TextView android:text="Blood Donation Stats" android:textStyle="bold" android:textColor="#D11A2A" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
+                        <TextView android:id="@+id/tvViewDonations" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:layout_marginBottom="4dp"/>
+                        <TextView android:id="@+id/tvViewRequests" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:layout_marginBottom="4dp"/>
+                        <TextView android:id="@+id/tvViewAvailability" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+            <!-- ================= EDIT MODE ================= -->
+            <LinearLayout
+                android:id="@+id/llEditMode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Full Name"
-                android:inputType="textPersonName"
-                android:padding="12dp"
-                android:background="#EEEEEE"
-                android:layout_marginBottom="12dp"/>
-            
-            <EditText
-                android:id="@+id/etBloodGroup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Blood Group"
-                android:padding="12dp"
-                android:background="#EEEEEE"
-                android:layout_marginBottom="12dp"/>
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Edit Profile Information"
+                    android:textColor="#D11A2A"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/etFullName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Full Name"
+                    android:inputType="textPersonName"
+                    android:padding="14dp"
+                    android:background="#FFFFFF"
+                    android:elevation="1dp"
+                    android:layout_marginBottom="12dp"/>
                 
-            <EditText
-                android:id="@+id/etLocation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Location Area"
-                android:padding="12dp"
-                android:background="#EEEEEE"
-                android:layout_marginBottom="12dp"/>
+                <EditText
+                    android:id="@+id/etBloodGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Blood Group (e.g. O+)"
+                    android:padding="14dp"
+                    android:background="#FFFFFF"
+                    android:elevation="1dp"
+                    android:layout_marginBottom="12dp"/>
+                    
+                <EditText
+                    android:id="@+id/etPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Contact Number"
+                    android:inputType="phone"
+                    android:padding="14dp"
+                    android:background="#FFFFFF"
+                    android:elevation="1dp"
+                    android:layout_marginBottom="12dp"/>
 
-            <EditText
-                android:id="@+id/etPhone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Contact Number"
-                android:inputType="phone"
-                android:padding="12dp"
-                android:background="#EEEEEE"
-                android:layout_marginBottom="24dp"/>
+                <EditText
+                    android:id="@+id/etLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="General Area (e.g. Dhanmondi)"
+                    android:padding="14dp"
+                    android:background="#FFFFFF"
+                    android:elevation="1dp"
+                    android:layout_marginBottom="12dp"/>
 
-            <Button
-                android:id="@+id/btnSaveProfile"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:text="Save Profile"
-                android:backgroundTint="#D11A2A"
-                android:textColor="#FFFFFF"/>
-        </LinearLayout>
+                <EditText
+                    android:id="@+id/etAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Full Precise Address"
+                    android:padding="14dp"
+                    android:background="#FFFFFF"
+                    android:elevation="1dp"
+                    android:layout_marginBottom="12dp"/>
+
+                <EditText
+                    android:id="@+id/etGender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Gender"
+                    android:padding="14dp"
+                    android:background="#FFFFFF"
+                    android:elevation="1dp"
+                    android:layout_marginBottom="12dp"/>
+
+                <EditText
+                    android:id="@+id/etDob"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Date of Birth (YYYY-MM-DD)"
+                    android:padding="14dp"
+                    android:background="#FFFFFF"
+                    android:elevation="1dp"
+                    android:layout_marginBottom="16dp"/>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/swAvailableToDonate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Available to Donate Blood?"
+                    android:padding="14dp"
+                    android:layout_marginBottom="24dp"/>
+
+                <Button
+                    android:id="@+id/btnSaveProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="14dp"
+                    android:text="Save Profile"
+                    android:backgroundTint="#D11A2A"
+                    android:textColor="#FFFFFF"/>
+                    
+                <Button
+                    android:id="@+id/btnCancelEdit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="14dp"
+                    android:text="Cancel"
+                    android:backgroundTint="#9E9E9E"
+                    android:textColor="#FFFFFF"/>
+
+            </LinearLayout>
+
+        </FrameLayout>
     </ScrollView>
 </LinearLayout>
