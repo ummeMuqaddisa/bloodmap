@@ -2,7 +2,7 @@ package edu.ewubd.bloodmap.ClassModels;
 
 import org.json.JSONObject;
 
-public class userModel {
+public class UserModel {
     private String uid;
     private String name;
     private String email;
@@ -11,10 +11,10 @@ public class userModel {
     private String locationArea;
     private String contactNumber;
 
-    public userModel() {
+    public UserModel() {
     }
 
-    public userModel(String uid, String name, String email) {
+    public UserModel(String uid, String name, String email) {
         this.uid = uid;
         this.name = name;
         this.email = email;
@@ -94,10 +94,10 @@ public class userModel {
         } catch (Exception e) { return "{}"; }
     }
 
-    public static userModel fromJson(String jsonStr) {
+    public static UserModel fromJson(String jsonStr) {
         try {
             JSONObject json = new JSONObject(jsonStr);
-            userModel model = new userModel(
+            UserModel model = new UserModel(
                 json.optString("uid", ""),
                 json.optString("name", ""),
                 json.optString("email", "")
@@ -107,6 +107,6 @@ public class userModel {
             model.setLocationArea(json.optString("locationArea", ""));
             model.setContactNumber(json.optString("contactNumber", ""));
             return model;
-        } catch (Exception e) { return new userModel(); }
+        } catch (Exception e) { return new UserModel(); }
     }
 }

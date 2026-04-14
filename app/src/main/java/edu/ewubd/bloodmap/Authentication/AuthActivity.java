@@ -14,7 +14,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import edu.ewubd.bloodmap.ClassModels.userModel;
+import edu.ewubd.bloodmap.ClassModels.UserModel;
 import edu.ewubd.bloodmap.MainActivity;
 import edu.ewubd.bloodmap.R;
 import edu.ewubd.bloodmap.admin.AdminActivity;
@@ -110,7 +110,7 @@ public class AuthActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
-                            userModel model = new userModel(user.getUid(), name, email);
+                            UserModel model = new UserModel(user.getUid(), name, email);
                             db.collection("users").document(user.getUid()).set(model)
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Sign up successful!", Toast.LENGTH_SHORT).show();
@@ -136,7 +136,7 @@ public class AuthActivity extends AppCompatActivity {
     private void checkAdminAndRoute(String uid) {
         db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                userModel user = documentSnapshot.toObject(userModel.class);
+                UserModel user = documentSnapshot.toObject(UserModel.class);
                 if (user != null && user.isAdmin()) {
                     startActivity(new Intent(this, AdminActivity.class));
                     finish();

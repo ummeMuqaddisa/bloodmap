@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#D11A2A"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:elevation="4dp">
+        
+        <ImageView
+            android:id="@+id/back_button"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/tvBankFormTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Add Blood Bank"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <EditText
+                android:id="@+id/etBankName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Blood Bank Name"
+                android:padding="14dp"
+                android:background="#FFFFFF"
+                android:elevation="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <EditText
+                android:id="@+id/etBankPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Contact Number"
+                android:inputType="phone"
+                android:padding="14dp"
+                android:background="#FFFFFF"
+                android:elevation="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <EditText
+                android:id="@+id/etBankAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Full Address"
+                android:padding="14dp"
+                android:background="#FFFFFF"
+                android:elevation="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <EditText
+                    android:id="@+id/etLat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Lat (e.g. 23.7)"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:padding="14dp"
+                    android:background="#FFFFFF"
+                    android:elevation="2dp"
+                    android:layout_marginEnd="8dp"/>
+
+                <EditText
+                    android:id="@+id/etLon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Lon (e.g. 90.4)"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:padding="14dp"
+                    android:background="#FFFFFF"
+                    android:elevation="2dp"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Stock (Amount)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:rowCount="4"
+                android:layout_marginBottom="16dp">
+
+                <EditText android:id="@+id/etAPos" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:hint="A+" android:inputType="number" android:padding="12dp" android:background="#FFFFFF" android:layout_margin="4dp"/>
+                <EditText android:id="@+id/etANeg" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:hint="A-" android:inputType="number" android:padding="12dp" android:background="#FFFFFF" android:layout_margin="4dp"/>
+                <EditText android:id="@+id/etBPos" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:hint="B+" android:inputType="number" android:padding="12dp" android:background="#FFFFFF" android:layout_margin="4dp"/>
+                <EditText android:id="@+id/etBNeg" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:hint="B-" android:inputType="number" android:padding="12dp" android:background="#FFFFFF" android:layout_margin="4dp"/>
+                <EditText android:id="@+id/etABPos" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:hint="AB+" android:inputType="number" android:padding="12dp" android:background="#FFFFFF" android:layout_margin="4dp"/>
+                <EditText android:id="@+id/etABNeg" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:hint="AB-" android:inputType="number" android:padding="12dp" android:background="#FFFFFF" android:layout_margin="4dp"/>
+                <EditText android:id="@+id/etOPos" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:hint="O+" android:inputType="number" android:padding="12dp" android:background="#FFFFFF" android:layout_margin="4dp"/>
+                <EditText android:id="@+id/etONeg" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:hint="O-" android:inputType="number" android:padding="12dp" android:background="#FFFFFF" android:layout_margin="4dp"/>
+            </GridLayout>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/sw24Hours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Open 24 Hours?"
+                android:padding="14dp"
+                android:layout_marginBottom="24dp"/>
+
+            <Button
+                android:id="@+id/btnSaveBank"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save Data"
+                android:backgroundTint="#D11A2A"
+                android:textColor="#FFFFFF"
+                android:padding="14dp"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

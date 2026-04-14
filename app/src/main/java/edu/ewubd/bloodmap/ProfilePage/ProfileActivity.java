@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import edu.ewubd.bloodmap.ClassModels.userModel;
+import edu.ewubd.bloodmap.ClassModels.UserModel;
 import edu.ewubd.bloodmap.R;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -21,7 +21,7 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseUser currentUser;
     
-    private userModel currentModel;
+    private UserModel currentModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +53,7 @@ public class ProfileActivity extends AppCompatActivity {
         db.collection("users").document(currentUser.getUid()).get()
             .addOnSuccessListener(documentSnapshot -> {
                 if (documentSnapshot.exists()) {
-                    currentModel = documentSnapshot.toObject(userModel.class);
+                    currentModel = documentSnapshot.toObject(UserModel.class);
                     if (currentModel != null) {
                         etFullName.setText(currentModel.getName());
                         etBloodGroup.setText(currentModel.getBloodGroup());
