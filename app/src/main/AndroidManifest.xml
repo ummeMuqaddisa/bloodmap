@@ -29,6 +29,7 @@
             android:exported="true">
         </activity>
 
+        <activity android:name=".admin.AdminActivity" android:exported="false" />
         <activity android:name=".ProfilePage.ProfileActivity" android:exported="false" />
         <activity android:name=".DrawerPages.OpenRequestsActivity" android:exported="false" />
         <activity android:name=".DrawerPages.OpenResponsesActivity" android:exported="false" />

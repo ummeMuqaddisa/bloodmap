@@ -35,6 +35,7 @@
                 android:orientation="vertical">
 
                 <EditText
+                    android:id="@+id/etPatientName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Patient Name"
@@ -44,6 +45,7 @@
                     android:layout_marginBottom="8dp"/>
 
                 <EditText
+                    android:id="@+id/etBloodGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Blood Group (e.g. O+)"
@@ -52,6 +54,7 @@
                     android:layout_marginBottom="8dp"/>
 
                 <EditText
+                    android:id="@+id/etHospitalDetails"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Hospital Name &amp; Area"
@@ -60,6 +63,7 @@
                     android:layout_marginBottom="8dp"/>
 
                 <EditText
+                    android:id="@+id/etContactNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Contact Number"
@@ -69,6 +73,7 @@
                     android:layout_marginBottom="16dp"/>
 
                 <Button
+                    android:id="@+id/btnSubmitRequest"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Submit Request"

@@ -1,7 +1,6 @@
 package edu.ewubd.bloodmap;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -13,6 +12,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import edu.ewubd.bloodmap.Authentication.AuthActivity;
+import com.google.firebase.auth.FirebaseAuth;
 import edu.ewubd.bloodmap.DrawerPages.ChatbotActivity;
 import edu.ewubd.bloodmap.DrawerPages.BloodBanksActivity;
 import edu.ewubd.bloodmap.DrawerPages.DonationHistoryActivity;
@@ -22,8 +22,8 @@ import edu.ewubd.bloodmap.DrawerPages.OpenResponsesActivity;
 import edu.ewubd.bloodmap.DrawerPages.ReceivedHistoryActivity;
 import edu.ewubd.bloodmap.HomePages.AvailableFragment;
 import edu.ewubd.bloodmap.HomePages.HeatmapFragment;
-import edu.ewubd.bloodmap.HomePages.NewRequestFragment;
-import edu.ewubd.bloodmap.HomePages.RequestsFragment;
+import edu.ewubd.bloodmap.HomePages.requestFrag.NewRequestFragment;
+import edu.ewubd.bloodmap.HomePages.requestFrag.RequestsFragment;
 import edu.ewubd.bloodmap.ProfilePage.ProfileActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -64,14 +64,8 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.menu_chatbot).setOnClickListener(v -> closeDrawerAndStart(ChatbotActivity.class));
         
         findViewById(R.id.menu_logout).setOnClickListener(v -> {
-            SharedPreferences prefs = getSharedPreferences("AuthPrefs", MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("isLoggedIn", false);
-            editor.apply();
-
-
+            FirebaseAuth.getInstance().signOut();
             startActivity(new Intent(this, AuthActivity.class));
-
             finish();
         });
 

@@ -69,6 +69,7 @@
                 android:textStyle="bold" />
 
             <EditText
+                android:id="@+id/etFullName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Full Name"
@@ -78,6 +79,7 @@
                 android:layout_marginBottom="12dp"/>
             
             <EditText
+                android:id="@+id/etBloodGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Blood Group"
@@ -86,6 +88,7 @@
                 android:layout_marginBottom="12dp"/>
                 
             <EditText
+                android:id="@+id/etLocation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Location Area"
@@ -94,6 +97,7 @@
                 android:layout_marginBottom="12dp"/>
 
             <EditText
+                android:id="@+id/etPhone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Contact Number"
@@ -103,6 +107,7 @@
                 android:layout_marginBottom="24dp"/>
 
             <Button
+                android:id="@+id/btnSaveProfile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="12dp"
