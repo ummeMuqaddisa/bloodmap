@@ -207,6 +207,16 @@
         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
 
         <TextView
+            android:id="@+id/menu_manage_locations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="Manage App Locations"
+            android:textColor="#333333"
+            android:textSize="16sp" />
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+        <TextView
             android:id="@+id/menu_active_requests"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

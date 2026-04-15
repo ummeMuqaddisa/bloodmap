@@ -16,7 +16,7 @@ public class HospitalContactModel {
     private Date createdAt;
 
     public HospitalContactModel() {
-        // Required empty public constructor for Firebase Firestore
+        
     }
 
     public HospitalContactModel(String hospitalId, String hospitalName, String contactNumber, String address, 

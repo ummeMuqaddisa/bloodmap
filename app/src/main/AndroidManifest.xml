@@ -34,6 +34,7 @@
         <activity android:name=".admin.AddBloodBankActivity" android:exported="false" />
         <activity android:name=".admin.AddHospitalActivity" android:exported="false" />
         <activity android:name=".admin.AdminRequestsActivity" android:exported="false" />
+        <activity android:name=".admin.AdminManageLocationsActivity" android:exported="false" />
         <activity android:name=".ProfilePage.ProfileActivity" android:exported="false" />
         <activity android:name=".DrawerPages.OpenRequestsActivity" android:exported="false" />
         <activity android:name=".DrawerPages.OpenResponsesActivity" android:exported="false" />

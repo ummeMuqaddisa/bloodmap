@@ -38,6 +38,7 @@ public class AdminActivity extends AppCompatActivity {
         findViewById(R.id.menu_show_users).setOnClickListener(v -> closeDrawerAndStart(UserListActivity.class));
         findViewById(R.id.menu_show_blood_banks).setOnClickListener(v -> closeDrawerAndStart(BloodBanksActivity.class));
         findViewById(R.id.menu_show_hospitals).setOnClickListener(v -> closeDrawerAndStart(HospitalContactsActivity.class));
+        findViewById(R.id.menu_manage_locations).setOnClickListener(v -> closeDrawerAndStart(AdminManageLocationsActivity.class));
         findViewById(R.id.menu_active_requests).setOnClickListener(v -> closeDrawerAndStartAdminRequests("OPEN"));
         findViewById(R.id.menu_previous_requests).setOnClickListener(v -> closeDrawerAndStartAdminRequests("COMPLETED"));
         
