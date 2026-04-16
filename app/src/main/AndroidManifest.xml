@@ -30,11 +30,13 @@
         </activity>
 
         <activity android:name=".admin.AdminActivity" android:exported="false" />
-        <activity android:name=".admin.UserListActivity" android:exported="false" />
-        <activity android:name=".admin.AddBloodBankActivity" android:exported="false" />
-        <activity android:name=".admin.AddHospitalActivity" android:exported="false" />
-        <activity android:name=".admin.AdminRequestsActivity" android:exported="false" />
-        <activity android:name=".admin.AdminManageLocationsActivity" android:exported="false" />
+        <activity android:name=".admin.userManagement.UserListActivity" android:exported="false" />
+        <activity android:name=".admin.bloodbankManagement.AddBloodBankActivity" android:exported="false" />
+        <activity android:name=".admin.hospitalsManagement.AddHospitalActivity" android:exported="false" />
+        <activity android:name=".admin.requestManagement.AdminRequestsActivity" android:exported="false" />
+        <activity android:name=".admin.locationManagement.AdminManageLocationsActivity" android:exported="false" />
+        <activity android:name=".admin.hospitalsManagement.AdminHospitalsActivity" android:exported="false" />
+        <activity android:name=".admin.bloodbankManagement.AdminBloodBanksActivity" android:exported="false" />
         <activity android:name=".ProfilePage.ProfileActivity" android:exported="false" />
         <activity
             android:name=".DrawerPages.myRequst.OpenRequestsActivity"

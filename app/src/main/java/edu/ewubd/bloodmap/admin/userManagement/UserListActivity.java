@@ -1,6 +1,8 @@
-package edu.ewubd.bloodmap.admin;
+package edu.ewubd.bloodmap.admin.userManagement;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,6 +22,7 @@ public class UserListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private UserAdapter adapter;
     private List<UserModel> userList;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,22 +38,37 @@ public class UserListActivity extends AppCompatActivity {
         adapter = new UserAdapter(userList);
         recyclerView.setAdapter(adapter);
 
+        progressBar = findViewById(R.id.progressBarUsers);
+    }
+ 
+    @Override
+    protected void onStart() {
+        super.onStart();
         loadUsers();
     }
 
     private void loadUsers() {
+        progressBar.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+ 
         FirebaseFirestore.getInstance().collection("users")
-            .get()
-            .addOnSuccessListener(queryDocumentSnapshots -> {
-                userList.clear();
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    UserModel model = doc.toObject(UserModel.class);
-                    userList.add(model);
+            .addSnapshotListener(this, (queryDocumentSnapshots, e) -> {
+                progressBar.setVisibility(View.GONE);
+                
+                if (e != null) {
+                    Toast.makeText(this, "Failed to load users: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                adapter.notifyDataSetChanged();
-            })
-            .addOnFailureListener(e -> {
-                Toast.makeText(this, "Failed to load users: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+ 
+                if (queryDocumentSnapshots != null) {
+                    recyclerView.setVisibility(View.VISIBLE);
+                    userList.clear();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        UserModel model = doc.toObject(UserModel.class);
+                        userList.add(model);
+                    }
+                    adapter.notifyDataSetChanged();
+                }
             });
     }
 }

@@ -1,4 +1,4 @@
-package edu.ewubd.bloodmap.admin;
+package edu.ewubd.bloodmap.admin.locationManagement;
 
 import android.content.Context;
 import android.view.LayoutInflater;

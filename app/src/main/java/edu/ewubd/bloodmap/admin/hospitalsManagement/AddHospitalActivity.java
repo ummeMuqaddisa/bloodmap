@@ -1,4 +1,4 @@
-package edu.ewubd.bloodmap.admin;
+package edu.ewubd.bloodmap.admin.hospitalsManagement;
 
 import android.os.Bundle;
 import android.widget.Button;

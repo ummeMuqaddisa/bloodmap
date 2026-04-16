@@ -67,6 +67,13 @@
         android:layout_below="@id/filterContainer"
         android:clipToPadding="false"
         android:paddingBottom="80dp" />
+        
+    <ProgressBar
+        android:id="@+id/progressBarLocations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddLocation"

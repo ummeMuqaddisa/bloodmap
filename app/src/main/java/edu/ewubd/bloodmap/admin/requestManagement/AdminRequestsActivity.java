@@ -1,6 +1,8 @@
-package edu.ewubd.bloodmap.admin;
+package edu.ewubd.bloodmap.admin.requestManagement;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +25,7 @@ public class AdminRequestsActivity extends AppCompatActivity {
     private AdminRequestAdapter adapter;
     private List<BloodTransactionModel> requestList;
     private String statusFilter = "OPEN";
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,23 +47,38 @@ public class AdminRequestsActivity extends AppCompatActivity {
         adapter = new AdminRequestAdapter(requestList);
         recyclerView.setAdapter(adapter);
 
+        progressBar = findViewById(R.id.progressBarAdminRequests);
+    }
+ 
+    @Override
+    protected void onStart() {
+        super.onStart();
         loadRequests();
     }
 
     private void loadRequests() {
+        progressBar.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+ 
         FirebaseFirestore.getInstance().collection("transactions")
             .whereEqualTo("status", statusFilter)
-            .get()
-            .addOnSuccessListener(queryDocumentSnapshots -> {
-                requestList.clear();
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    BloodTransactionModel model = doc.toObject(BloodTransactionModel.class);
-                    requestList.add(model);
+            .addSnapshotListener(this, (queryDocumentSnapshots, e) -> {
+                progressBar.setVisibility(View.GONE);
+                
+                if (e != null) {
+                    Toast.makeText(this, "Failed to load requests", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                adapter.notifyDataSetChanged();
-            })
-            .addOnFailureListener(e -> {
-                Toast.makeText(this, "Failed to load requests", Toast.LENGTH_SHORT).show();
+ 
+                if (queryDocumentSnapshots != null) {
+                    recyclerView.setVisibility(View.VISIBLE);
+                    requestList.clear();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        BloodTransactionModel model = doc.toObject(BloodTransactionModel.class);
+                        requestList.add(model);
+                    }
+                    adapter.notifyDataSetChanged();
+                }
             });
     }
 }

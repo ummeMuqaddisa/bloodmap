@@ -1,4 +1,4 @@
-package edu.ewubd.bloodmap.admin;
+package edu.ewubd.bloodmap.admin.locationManagement;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -32,6 +34,8 @@ public class AdminManageLocationsActivity extends AppCompatActivity {
     private RecyclerView rvLocations;
     private AdminLocationAdapter adapter;
     private final List<LocationModel> locationList = new ArrayList<>();
+    private ProgressBar progressBar;
+    private ListenerRegistration currentListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,27 +70,48 @@ public class AdminManageLocationsActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.fabAddLocation).setOnClickListener(v -> showAddLocationDialog());
-        findViewById(R.id.fabAddLocation).setOnClickListener(v -> showAddLocationDialog());
+        
+        progressBar = findViewById(R.id.progressBarLocations);
+    }
+ 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadLocations();
     }
 
     private void loadLocations() {
         adapter = new AdminLocationAdapter(this, locationList, currentCollection);
         rvLocations.setAdapter(adapter);
 
-        FirebaseFirestore.getInstance().collection(currentCollection).get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    locationList.clear();
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        try {
-                            LocationModel location = doc.toObject(LocationModel.class);
-                            locationList.add(location);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+        progressBar.setVisibility(View.VISIBLE);
+        rvLocations.setVisibility(View.GONE);
+ 
+        if (currentListener != null) {
+            currentListener.remove();
+        }
+ 
+        currentListener = FirebaseFirestore.getInstance().collection(currentCollection)
+                .addSnapshotListener(this, (queryDocumentSnapshots, e) -> {
+                    progressBar.setVisibility(View.GONE);
+                    if (e != null) {
+                        Toast.makeText(this, "Failed to load instances.", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                    adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to load instances.", Toast.LENGTH_SHORT).show());
+                    if (queryDocumentSnapshots != null) {
+                        rvLocations.setVisibility(View.VISIBLE);
+                        locationList.clear();
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            try {
+                                LocationModel location = doc.toObject(LocationModel.class);
+                                locationList.add(location);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                        adapter.notifyDataSetChanged();
+                    }
+                });
     }
 
     private void showAddLocationDialog() {

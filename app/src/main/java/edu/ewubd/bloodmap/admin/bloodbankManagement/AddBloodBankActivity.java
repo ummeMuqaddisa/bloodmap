@@ -1,4 +1,4 @@
-package edu.ewubd.bloodmap.admin;
+package edu.ewubd.bloodmap.admin.bloodbankManagement;
 
 import android.os.Bundle;
 import android.widget.Button;
@@ -53,15 +53,12 @@ public class AddBloodBankActivity extends AppCompatActivity {
         btnSave = findViewById(R.id.btnSaveBank);
         tvFormTitle = findViewById(R.id.tvBankFormTitle);
 
-        // Check for Edit Mode
         if (getIntent() != null && getIntent().hasExtra("ID")) {
             bloodBankId = getIntent().getStringExtra("ID");
             etBankName.setText(getIntent().getStringExtra("NAME"));
             etBankPhone.setText(getIntent().getStringExtra("PHONE"));
             etBankAddress.setText(getIntent().getStringExtra("ADDRESS"));
             
-            // Note: In previous sessions, Lat/Lon weren't passed.
-            // If editing a documented bank, these might be in intent.
             if (getIntent().hasExtra("LATITUDE")) {
                 etLat.setText(String.valueOf(getIntent().getDoubleExtra("LATITUDE", 0)));
                 etLon.setText(String.valueOf(getIntent().getDoubleExtra("LONGITUDE", 0)));
