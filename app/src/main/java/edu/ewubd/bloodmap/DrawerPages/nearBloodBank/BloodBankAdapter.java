@@ -8,6 +8,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import android.content.Intent;
+import android.net.Uri;
+import android.location.Location;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +21,16 @@ import edu.ewubd.bloodmap.admin.bloodbankManagement.AddBloodBankActivity;
 public class BloodBankAdapter extends RecyclerView.Adapter<BloodBankAdapter.BankViewHolder> {
 
     private List<BloodBankModel> bankList;
-
+    private Double userLat, userLong;
 
     public BloodBankAdapter(List<BloodBankModel> bankList) {
         this.bankList = bankList;
+    }
+
+    public void setUserLocation(double lat, double lng) {
+        this.userLat = lat;
+        this.userLong = lng;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -57,7 +66,14 @@ public class BloodBankAdapter extends RecyclerView.Adapter<BloodBankAdapter.Bank
         }
 
         // Coordinates
-        holder.tvBankCoordinates.setText(String.format("Coordinates: %.4f, %.4f", model.getLatitude(), model.getLongitude()));
+        String coordStr = String.format("Coordinates: %.4f, %.4f", model.getLatitude(), model.getLongitude());
+        if (userLat != null && userLong != null) {
+            float[] results = new float[1];
+            Location.distanceBetween(userLat, userLong, model.getLatitude(), model.getLongitude(), results);
+            float distanceKm = results[0] / 1000f;
+            coordStr += String.format(" (%.2f km away)", distanceKm);
+        }
+        holder.tvBankCoordinates.setText(coordStr);
 
         // 24h Badge
         if (model.isOpen24Hours()) {
@@ -68,6 +84,25 @@ public class BloodBankAdapter extends RecyclerView.Adapter<BloodBankAdapter.Bank
 
         // Always hide edit button for normal users
         holder.btnEditBank.setVisibility(View.GONE);
+
+        holder.btnCallBank.setOnClickListener(v -> {
+            String phone = model.getContactNumber();
+            if (phone != null && !phone.isEmpty()) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + phone));
+                v.getContext().startActivity(intent);
+            }
+        });
+
+        holder.btnNavigateBank.setOnClickListener(v -> {
+            String uri = String.format(java.util.Locale.ENGLISH, "geo:%f,%f?q=%f,%f(%s)", 
+                model.getLatitude(), model.getLongitude(), 
+                model.getLatitude(), model.getLongitude(), 
+                Uri.encode(model.getBankName()));
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+            intent.setPackage("com.google.android.apps.maps");
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override
@@ -78,6 +113,7 @@ public class BloodBankAdapter extends RecyclerView.Adapter<BloodBankAdapter.Bank
     static class BankViewHolder extends RecyclerView.ViewHolder {
         TextView tvBankName, tvContact, tvAddress, tvStockSummary, tvBankCoordinates, tv24hBadge;
         ImageButton btnEditBank;
+        View btnCallBank, btnNavigateBank;
 
         public BankViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -88,6 +124,8 @@ public class BloodBankAdapter extends RecyclerView.Adapter<BloodBankAdapter.Bank
             tvBankCoordinates = itemView.findViewById(R.id.tvBankCoordinates);
             tv24hBadge = itemView.findViewById(R.id.tv24hBadge);
             btnEditBank = itemView.findViewById(R.id.btnEditBank);
+            btnCallBank = itemView.findViewById(R.id.btnCallBank);
+            btnNavigateBank = itemView.findViewById(R.id.btnNavigateBank);
         }
     }
 }

@@ -1,6 +1,8 @@
 package edu.ewubd.bloodmap.DrawerPages.nearHospital;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +19,16 @@ import edu.ewubd.bloodmap.admin.hospitalsManagement.AddHospitalActivity;
 public class HospitalAdapter extends RecyclerView.Adapter<HospitalAdapter.HospitalViewHolder> {
 
     private List<HospitalContactModel> hospitalList;
-
+    private Double userLat, userLong;
 
     public HospitalAdapter(List<HospitalContactModel> hospitalList) {
         this.hospitalList = hospitalList;
+    }
+
+    public void setUserLocation(double lat, double lng) {
+        this.userLat = lat;
+        this.userLong = lng;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -51,7 +59,14 @@ public class HospitalAdapter extends RecyclerView.Adapter<HospitalAdapter.Hospit
         }
 
         // Display Coordinates
-        holder.tvCoordinates.setText(String.format("Coordinates: %.4f, %.4f", model.getLatitude(), model.getLongitude()));
+        String coordStr = String.format("Coordinates: %.4f, %.4f", model.getLatitude(), model.getLongitude());
+        if (userLat != null && userLong != null) {
+            float[] results = new float[1];
+            Location.distanceBetween(userLat, userLong, model.getLatitude(), model.getLongitude(), results);
+            float distanceKm = results[0] / 1000f;
+            coordStr += String.format(" (%.2f km away)", distanceKm);
+        }
+        holder.tvCoordinates.setText(coordStr);
 
         // Display Blood Bank Status
         if (model.isHasBloodBank()) {
@@ -59,6 +74,25 @@ public class HospitalAdapter extends RecyclerView.Adapter<HospitalAdapter.Hospit
         } else {
             holder.tvBloodBankStatus.setVisibility(View.GONE);
         }
+
+        holder.btnCallHospital.setOnClickListener(v -> {
+            String phone = model.getContactNumber();
+            if (phone != null && !phone.isEmpty()) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + phone));
+                v.getContext().startActivity(intent);
+            }
+        });
+
+        holder.btnNavigateHospital.setOnClickListener(v -> {
+            String uri = String.format(java.util.Locale.ENGLISH, "geo:%f,%f?q=%f,%f(%s)", 
+                model.getLatitude(), model.getLongitude(), 
+                model.getLatitude(), model.getLongitude(), 
+                Uri.encode(model.getHospitalName()));
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+            intent.setPackage("com.google.android.apps.maps");
+            v.getContext().startActivity(intent);
+        });
 
         // Always hide edit button for normal users
         holder.btnEditHospital.setVisibility(View.GONE);
@@ -72,6 +106,7 @@ public class HospitalAdapter extends RecyclerView.Adapter<HospitalAdapter.Hospit
     static class HospitalViewHolder extends RecyclerView.ViewHolder {
         TextView tvHospitalName, tvHospitalContact, tvHospitalAddress, tvFacilities, tvCoordinates, tvBloodBankStatus;
         ImageButton btnEditHospital;
+        View btnCallHospital, btnNavigateHospital;
 
         public HospitalViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -82,6 +117,8 @@ public class HospitalAdapter extends RecyclerView.Adapter<HospitalAdapter.Hospit
             tvCoordinates = itemView.findViewById(R.id.tvCoordinates);
             tvBloodBankStatus = itemView.findViewById(R.id.tvBloodBankStatus);
             btnEditHospital = itemView.findViewById(R.id.btnEditHospital);
+            btnCallHospital = itemView.findViewById(R.id.btnCallHospital);
+            btnNavigateHospital = itemView.findViewById(R.id.btnNavigateHospital);
         }
     }
 }

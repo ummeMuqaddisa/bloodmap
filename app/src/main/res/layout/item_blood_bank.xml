@@ -69,18 +69,52 @@
                 android:textColor="#888888"
                 android:textSize="12sp" />
 
-            <TextView
-                android:id="@+id/tv24hBadge"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#E3F2FD"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:text="Open 24/7"
-                android:textColor="#1976D2"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/tv24hBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#E3F2FD"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    android:text="Open 24/7"
+                    android:textColor="#1976D2"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="0dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCallBank"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CALL"
+                    app:icon="@android:drawable/ic_menu_call"
+                    android:textColor="#D11A2A"
+                    app:iconTint="#D11A2A" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavigateBank"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="NAVIGATE"
+                    app:icon="@android:drawable/ic_menu_directions"
+                    android:textColor="#1976D2"
+                    app:iconTint="#1976D2"
+                    android:layout_marginStart="4dp" />
+            </LinearLayout>
 
         </LinearLayout>
 

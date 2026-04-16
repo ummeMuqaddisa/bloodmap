@@ -61,16 +61,36 @@
             android:textColor="#777777"
             android:textSize="12sp" />
 
-        <Button
-            android:id="@+id/btnAcceptDonor"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:backgroundTint="#2E7D32"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:text="ACCEPT AS DONOR" />
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCallDonor"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="CALL"
+                app:icon="@android:drawable/ic_menu_call"
+                android:layout_marginEnd="4dp"
+                android:textColor="#2E7D32"
+                app:strokeColor="#2E7D32" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAcceptDonor"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:backgroundTint="#2E7D32"
+                android:text="ACCEPT DONOR"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginStart="4dp" />
+        </LinearLayout>
             
     </LinearLayout>
 </androidx.cardview.widget.CardView>

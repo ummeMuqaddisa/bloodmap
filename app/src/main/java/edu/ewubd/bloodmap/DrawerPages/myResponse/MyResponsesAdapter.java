@@ -1,5 +1,7 @@
 package edu.ewubd.bloodmap.DrawerPages.myResponse;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +47,16 @@ public class MyResponsesAdapter extends RecyclerView.Adapter<MyResponsesAdapter.
         holder.btnWithdraw.setOnClickListener(v -> {
             if (listener != null) listener.onWithdrawClick(model, position);
         });
+
+        holder.btnNavigateResponse.setOnClickListener(v -> {
+            String uri = String.format(java.util.Locale.ENGLISH, "geo:%f,%f?q=%f,%f(%s)", 
+                model.getLatitude(), model.getLongitude(), 
+                model.getLatitude(), model.getLongitude(), 
+                Uri.encode(model.getHospitalNameArea()));
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+            intent.setPackage("com.google.android.apps.maps");
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override
@@ -54,7 +66,7 @@ public class MyResponsesAdapter extends RecyclerView.Adapter<MyResponsesAdapter.
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvPatientDetails, tvHospital;
-        Button btnWithdraw;
+        Button btnWithdraw, btnNavigateResponse;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -62,6 +74,7 @@ public class MyResponsesAdapter extends RecyclerView.Adapter<MyResponsesAdapter.
             tvPatientDetails = itemView.findViewById(R.id.tvPatientDetails);
             tvHospital = itemView.findViewById(R.id.tvHospital);
             btnWithdraw = itemView.findViewById(R.id.btnWithdraw);
+            btnNavigateResponse = itemView.findViewById(R.id.btnNavigateResponse);
         }
     }
 }

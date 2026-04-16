@@ -1,5 +1,7 @@
 package edu.ewubd.bloodmap.DrawerPages.myRequst;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +44,19 @@ public class ResponderAdapter extends RecyclerView.Adapter<ResponderAdapter.View
         
         holder.tvStats.setText("Total Donations: " + user.getTotalDonations());
 
+        holder.tvStats.setText("Total Donations: " + user.getTotalDonations());
+
+        holder.btnCallDonor.setOnClickListener(v -> {
+            String phone = user.getContactNumber();
+            if (phone != null && !phone.isEmpty()) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + phone));
+                v.getContext().startActivity(intent);
+            } else {
+                android.widget.Toast.makeText(v.getContext(), "Contact number not available", android.widget.Toast.LENGTH_SHORT).show();
+            }
+        });
+
         holder.btnAcceptDonor.setOnClickListener(v -> {
             if (listener != null) listener.onAcceptDonorClick(user, position);
         });
@@ -54,7 +69,7 @@ public class ResponderAdapter extends RecyclerView.Adapter<ResponderAdapter.View
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvBloodGroup, tvContact, tvStats;
-        Button btnAcceptDonor;
+        Button btnAcceptDonor, btnCallDonor;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -63,6 +78,7 @@ public class ResponderAdapter extends RecyclerView.Adapter<ResponderAdapter.View
             tvContact = itemView.findViewById(R.id.tvContact);
             tvStats = itemView.findViewById(R.id.tvStats);
             btnAcceptDonor = itemView.findViewById(R.id.btnAcceptDonor);
+            btnCallDonor = itemView.findViewById(R.id.btnCallDonor);
         }
     }
 }

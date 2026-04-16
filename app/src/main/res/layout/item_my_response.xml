@@ -57,15 +57,28 @@
                 android:textStyle="bold"
                 android:textSize="13sp" />
 
-            <Button
-                android:id="@+id/btnWithdraw"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNavigateResponse"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="wrap_content"
+                android:text="NAVIGATE"
+                app:icon="@android:drawable/ic_menu_directions"
+                android:textColor="#1976D2"
+                app:iconTint="#1976D2"
+                android:layout_marginEnd="4dp"
+                android:paddingHorizontal="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnWithdraw"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:backgroundTint="#888888"
                 android:textColor="#FFFFFF"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
-                android:paddingHorizontal="16dp"
+                android:paddingHorizontal="8dp"
                 android:text="WITHDRAW" />
         </LinearLayout>
     </LinearLayout>
