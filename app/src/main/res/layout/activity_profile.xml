@@ -566,15 +566,17 @@
                     android:elevation="1dp"
                     android:layout_marginBottom="12dp"/>
                 
-                <EditText
+                <AutoCompleteTextView
                     android:id="@+id/etBloodGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Blood Group (e.g. O+)"
+                    android:hint="Select Blood Group"
                     android:padding="14dp"
                     android:background="#FFFFFF"
                     android:elevation="1dp"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="12dp"
+                    android:focusable="false"
+                    android:clickable="true"/>
                     
                 <EditText
                     android:id="@+id/etPhone"
@@ -608,15 +610,17 @@
                     android:elevation="1dp"
                     android:layout_marginBottom="12dp"/>
 
-                <EditText
+                <AutoCompleteTextView
                     android:id="@+id/etGender"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Gender"
+                    android:hint="Select Gender"
                     android:padding="14dp"
                     android:background="#FFFFFF"
                     android:elevation="1dp"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="12dp"
+                    android:focusable="false"
+                    android:clickable="true"/>
 
                 <EditText
                     android:id="@+id/etDob"

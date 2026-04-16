@@ -1,18 +1,31 @@
 package edu.ewubd.bloodmap;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
-import edu.ewubd.bloodmap.Authentication.AuthActivity;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.ewubd.bloodmap.Authentication.AuthActivity;
 import edu.ewubd.bloodmap.DrawerPages.ChatbotActivity;
 import edu.ewubd.bloodmap.DrawerPages.nearBloodBank.BloodBanksActivity;
 import edu.ewubd.bloodmap.DrawerPages.donationHistory.DonationHistoryActivity;
@@ -31,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout navRequests, navNewRequest, navAvailable, navHeatmap;
     private DrawerLayout drawer;
     private int currentTabIndex = 0;
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +86,87 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             selectTab(0);
         }
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            runStartupChecks(currentUser.getUid());
+        }
+    }
+
+    // startup checks
+
+    private void runStartupChecks(String uid) {
+        updateUserLocation(uid);
+        checkAndRestoreDonorEligibility(uid);
+        expireStaleRequests(uid);
+    }
+
+    // location update
+    private void updateUserLocation(String uid) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    1001);
+            return;
+        }
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener(location -> {
+                    if (location != null) {
+                        Map<String, Object> locationUpdate = new HashMap<>();
+                        locationUpdate.put("latitude", location.getLatitude());
+                        locationUpdate.put("longitude", location.getLongitude());
+                        FirebaseFirestore.getInstance().collection("users").document(uid)
+                                .update(locationUpdate);
+                    }
+                });
+    }
+
+    // eligibility check
+    private void checkAndRestoreDonorEligibility(String uid) {
+        FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (!documentSnapshot.exists()) return;
+
+                    Boolean isAvailable = documentSnapshot.getBoolean("availableToDonate");
+                    Date nextEligibleDate = documentSnapshot.getDate("nextEligibleDate");
+
+                    if (Boolean.FALSE.equals(isAvailable) && nextEligibleDate != null) {
+                        if (new Date().after(nextEligibleDate)) {
+                            Map<String, Object> eligibilityUpdate = new HashMap<>();
+                            eligibilityUpdate.put("availableToDonate", true);
+                            eligibilityUpdate.put("nextEligibleDate", null);
+                            FirebaseFirestore.getInstance().collection("users").document(uid)
+                                    .update(eligibilityUpdate);
+                        }
+                    }
+                });
+    }
+
+    // expire stale requests
+    private void expireStaleRequests(String uid) {
+        long nowMillis = System.currentTimeMillis();
+        FirebaseFirestore.getInstance().collection("transactions")
+                .whereEqualTo("requesterUid", uid)
+                .whereEqualTo("status", "OPEN")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (com.google.firebase.firestore.QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Long neededByTime = doc.getLong("neededByTime");
+                        if (neededByTime != null && neededByTime > 0 && neededByTime < nowMillis) {
+                            doc.getReference().update("status", "EXPIRED",
+                                    "completedAt", nowMillis);
+                        }
+                    }
+                });
+    }
+
 
     private void closeDrawerAndStart(Class<?> activityClass) {
         startActivity(new Intent(this, activityClass));

@@ -58,4 +58,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.firebase.messaging)
     implementation(libs.picasso)
+
+    // Google Play Services - Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }

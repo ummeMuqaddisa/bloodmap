@@ -59,26 +59,35 @@ public class AdminRequestsActivity extends AppCompatActivity {
     private void loadRequests() {
         progressBar.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
- 
-        FirebaseFirestore.getInstance().collection("transactions")
-            .whereEqualTo("status", statusFilter)
-            .addSnapshotListener(this, (queryDocumentSnapshots, e) -> {
-                progressBar.setVisibility(View.GONE);
-                
-                if (e != null) {
-                    Toast.makeText(this, "Failed to load requests", Toast.LENGTH_SHORT).show();
-                    return;
-                }
- 
-                if (queryDocumentSnapshots != null) {
-                    recyclerView.setVisibility(View.VISIBLE);
-                    requestList.clear();
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        BloodTransactionModel model = doc.toObject(BloodTransactionModel.class);
+
+        com.google.firebase.firestore.Query query = FirebaseFirestore.getInstance().collection("transactions");
+
+        if ("OPEN".equals(statusFilter)) {
+            query = query.whereEqualTo("status", "OPEN");
+        }
+        // for history 
+
+        query.addSnapshotListener(this, (queryDocumentSnapshots, e) -> {
+            progressBar.setVisibility(View.GONE);
+            
+            if (e != null) {
+                Toast.makeText(this, "Failed to load requests", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (queryDocumentSnapshots != null) {
+                recyclerView.setVisibility(View.VISIBLE);
+                requestList.clear();
+                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                    BloodTransactionModel model = doc.toObject(BloodTransactionModel.class);
+                    if ("OPEN".equals(statusFilter)) {
+                        requestList.add(model);
+                    } else if (model.getStatus() != null && !model.getStatus().equals("OPEN")) {
                         requestList.add(model);
                     }
-                    adapter.notifyDataSetChanged();
                 }
-            });
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 }

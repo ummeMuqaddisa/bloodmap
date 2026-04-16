@@ -27,6 +27,7 @@ public class AuthActivity extends AppCompatActivity {
     private EditText etName, etEmail, etPassword;
     private Button btnSubmit;
     private TextView tvSwitchMode;
+    private android.widget.ProgressBar progressBar;
     
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -53,6 +54,7 @@ public class AuthActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnSubmit = findViewById(R.id.btnSubmit);
         tvSwitchMode = findViewById(R.id.tvSwitchMode);
+        progressBar = findViewById(R.id.progressBar);
 
         tvSwitchMode.setOnClickListener(v -> {
             isLoginMode = !isLoginMode;
@@ -60,6 +62,19 @@ public class AuthActivity extends AppCompatActivity {
         });
 
         btnSubmit.setOnClickListener(v -> handleAuth());
+    }
+
+    private void setLoading(boolean isLoading) {
+        if (btnSubmit != null) {
+            btnSubmit.setEnabled(!isLoading);
+            btnSubmit.setAlpha(isLoading ? 0.5f : 1.0f);
+        }
+        if (tvSwitchMode != null) {
+            tvSwitchMode.setEnabled(!isLoading);
+        }
+        if (progressBar != null) {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void updateUI() {
@@ -85,6 +100,8 @@ public class AuthActivity extends AppCompatActivity {
             return;
         }
 
+        setLoading(true);
+
         if (isLoginMode) {
             mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
@@ -96,12 +113,14 @@ public class AuthActivity extends AppCompatActivity {
                             startMainActivity();
                         }
                     } else {
+                        setLoading(false);
                         Toast.makeText(this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
         } else {
             String name = etName.getText().toString().trim();
             if (name.isEmpty()) {
+                setLoading(false);
                 Toast.makeText(this, "Please enter your name", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -117,10 +136,12 @@ public class AuthActivity extends AppCompatActivity {
                                     checkAdminAndRoute(user.getUid());
                                 })
                                 .addOnFailureListener(e -> {
+                                    setLoading(false);
                                     Toast.makeText(this, "Failed to save user info: " + e.getMessage(), Toast.LENGTH_LONG).show();
                                 });
                         }
                     } else {
+                        setLoading(false);
                         Toast.makeText(this, "Sign up failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
@@ -134,6 +155,7 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void checkAdminAndRoute(String uid) {
+        setLoading(true); // Ensure loading is shown during role check
         db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 UserModel user = documentSnapshot.toObject(UserModel.class);

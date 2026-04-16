@@ -19,8 +19,11 @@ import java.util.List;
 import android.app.AlertDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.ListenerRegistration;
 
+import android.content.Intent;
 import edu.ewubd.bloodmap.ClassModels.BloodTransactionModel;
+import edu.ewubd.bloodmap.ProfilePage.ProfileActivity;
 import edu.ewubd.bloodmap.R;
 
 public class RequestsFragment extends Fragment implements RequestAdapter.OnRequestActionListener {
@@ -28,6 +31,7 @@ public class RequestsFragment extends Fragment implements RequestAdapter.OnReque
     private RecyclerView recyclerView;
     private RequestAdapter adapter;
     private List<BloodTransactionModel> requestList;
+    private ListenerRegistration requestsRegistration;
 
     @Nullable
     @Override
@@ -41,26 +45,42 @@ public class RequestsFragment extends Fragment implements RequestAdapter.OnReque
         adapter = new RequestAdapter(requestList, this);
         recyclerView.setAdapter(adapter);
         
-        loadRequests();
-        
         return view;
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadRequests();
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (requestsRegistration != null) {
+            requestsRegistration.remove();
+            requestsRegistration = null;
+        }
     }
 
     private void loadRequests() {
-        FirebaseFirestore.getInstance().collection("transactions")
+        requestsRegistration = FirebaseFirestore.getInstance().collection("transactions")
             .whereEqualTo("status", "OPEN")
-            .get()
-            .addOnSuccessListener(queryDocumentSnapshots -> {
-                requestList.clear();
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    BloodTransactionModel model = doc.toObject(BloodTransactionModel.class);
-                    requestList.add(model);
+            .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                if (e != null) {
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Failed to load requests", Toast.LENGTH_SHORT).show();
+                    }
+                    return;
                 }
-                adapter.notifyDataSetChanged();
-            })
-            .addOnFailureListener(e -> {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Failed to load requests", Toast.LENGTH_SHORT).show();
+                
+                if (queryDocumentSnapshots != null) {
+                    requestList.clear();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        BloodTransactionModel model = doc.toObject(BloodTransactionModel.class);
+                        requestList.add(model);
+                    }
+                    adapter.notifyDataSetChanged();
                 }
             });
     }
@@ -82,12 +102,32 @@ public class RequestsFragment extends Fragment implements RequestAdapter.OnReque
             return;
         }
 
-        new AlertDialog.Builder(getContext())
-            .setTitle("Confirm Response")
-            .setMessage("Are you sure you want to respond to this request? This will notify the patient.")
-            .setPositiveButton("Respond", (dialog, which) -> executeResponse(model, position, currentUid))
-            .setNegativeButton("Cancel", null)
-            .show();
+        // check profile before allowing response
+        FirebaseFirestore.getInstance().collection("users").document(currentUid).get()
+            .addOnSuccessListener(doc -> {
+                if (getContext() == null) return;
+                String bloodGroup = doc.getString("bloodGroup");
+                String contactNumber = doc.getString("contactNumber");
+                boolean incomplete = (bloodGroup == null || bloodGroup.isEmpty())
+                        || (contactNumber == null || contactNumber.isEmpty());
+                if (incomplete) {
+                    new AlertDialog.Builder(getContext())
+                        .setTitle("Profile Incomplete")
+                        .setMessage("Please set up your blood group and contact number in your profile before responding to requests.")
+                        .setPositiveButton("Go to Profile", (dialog, which) -> {
+                            startActivity(new Intent(getContext(), ProfileActivity.class));
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+                    return;
+                }
+                new AlertDialog.Builder(getContext())
+                    .setTitle("Confirm Response")
+                    .setMessage("Are you sure you want to respond to this request? This will notify the patient.")
+                    .setPositiveButton("Respond", (dialog, which) -> executeResponse(model, position, currentUid))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+            });
     }
 
     private void executeResponse(BloodTransactionModel model, int position, String currentUid) {

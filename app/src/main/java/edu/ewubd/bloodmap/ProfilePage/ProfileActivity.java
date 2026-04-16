@@ -1,5 +1,6 @@
 package edu.ewubd.bloodmap.ProfilePage;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -16,8 +17,10 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.ArrayList;
@@ -37,8 +40,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     // Edit Mode UI
     private LinearLayout llEditMode;
-    private EditText etFullName, etBloodGroup, etPhone, etAddress, etGender, etDob;
-    private AutoCompleteTextView etLocation;
+    private EditText etFullName, etPhone, etAddress, etDob;
+    private AutoCompleteTextView etLocation, etBloodGroup, etGender;
     private SwitchMaterial swAvailableToDonate;
     private Button btnSaveProfile, btnCancelEdit;
     
@@ -100,18 +103,67 @@ public class ProfileActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         currentUser = mAuth.getCurrentUser();
         
+        setupPredefinedAdapters();
         fetchFirebaseAreas();
-
-        if (currentUser != null) {
-            loadUserProfile();
-        } else {
-            Toast.makeText(this, "Not logged in!", Toast.LENGTH_SHORT).show();
-            finish();
-        }
+        
+        etDob.setFocusable(false);
+        etDob.setClickable(true);
+        etDob.setOnClickListener(v -> showDatePicker());
 
         btnToggleEdit.setOnClickListener(v -> toggleEditMode(true));
         btnCancelEdit.setOnClickListener(v -> toggleEditMode(false));
         btnSaveProfile.setOnClickListener(v -> saveUserProfile());
+    }
+
+    private ListenerRegistration profileRegistration;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (currentUser != null) {
+            loadUserProfile();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (profileRegistration != null) {
+            profileRegistration.remove();
+            profileRegistration = null;
+        }
+    }
+
+    private void setupPredefinedAdapters() {
+        // Blood Groups
+        String[] bloodGroups = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"};
+        ArrayAdapter<String> bloodAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, bloodGroups);
+        etBloodGroup.setAdapter(bloodAdapter);
+        etBloodGroup.setOnClickListener(v -> etBloodGroup.showDropDown());
+
+        // Gender
+        String[] genders = {"Male", "Female"};
+        ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, genders);
+        etGender.setAdapter(genderAdapter);
+        etGender.setOnClickListener(v -> etGender.showDropDown());
+    }
+
+    private void showDatePicker() {
+        final Calendar c = Calendar.getInstance();
+        if (currentModel != null && currentModel.getDateOfBirth() != null) {
+            c.setTime(currentModel.getDateOfBirth());
+        }
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog picker = new DatePickerDialog(this, (view, year1, month1, dayOfMonth) -> {
+            c.set(Calendar.YEAR, year1);
+            c.set(Calendar.MONTH, month1);
+            c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            etDob.setText(dateFormat.format(c.getTime()));
+        }, year, month, day);
+        picker.show();
     }
 
     private void toggleEditMode(boolean enable) {
@@ -146,17 +198,34 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserProfile() {
-        db.collection("users").document(currentUser.getUid()).get()
-            .addOnSuccessListener(documentSnapshot -> {
-                if (documentSnapshot.exists()) {
+        profileRegistration = db.collection("users").document(currentUser.getUid())
+            .addSnapshotListener((documentSnapshot, e) -> {
+                if (e != null) {
+                    Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (documentSnapshot != null && documentSnapshot.exists()) {
                     currentModel = documentSnapshot.toObject(UserModel.class);
                     if (currentModel != null) {
                         populateViewMode();
-                        populateEditMode();
+                        // Only populate edit mode if not currently editing to avoid disrupting user input
+                        if (!isEditing) {
+                            populateEditMode();
+                        }
+                        checkProfileCompleteness();
                     }
                 }
-            })
-            .addOnFailureListener(e -> Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show());
+            });
+    }
+
+    private void checkProfileCompleteness() {
+        if (currentModel == null) return;
+        boolean bloodGroupMissing = isNullOrEmpty(currentModel.getBloodGroup());
+        boolean contactMissing = isNullOrEmpty(currentModel.getContactNumber());
+        if (bloodGroupMissing || contactMissing) {
+            Toast.makeText(this, "Please complete your profile to start responding to requests.", Toast.LENGTH_LONG).show();
+            toggleEditMode(true);
+        }
     }
 
     private void populateViewMode() {
