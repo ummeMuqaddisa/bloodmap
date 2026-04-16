@@ -24,6 +24,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import android.widget.RadioGroup;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.HashMap;
@@ -46,6 +47,11 @@ public class HeatmapFragment extends Fragment {
     private List<HospitalContactModel> cachedHospitals = new ArrayList<>();
     private List<BloodBankModel> cachedBloodBanks = new ArrayList<>();
     private final Map<String, Integer> donorCounts = new HashMap<>();
+
+    private ListenerRegistration areasRegistration;
+    private ListenerRegistration hospitalsRegistration;
+    private ListenerRegistration bloodBanksRegistration;
+    private ListenerRegistration donorsRegistration;
 
     @Nullable
     @Override
@@ -70,55 +76,54 @@ public class HeatmapFragment extends Fragment {
         }
 
         rgMapMode.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.rbDonors) {
-                loadDonors();
-            } else if (checkedId == R.id.rbHospitals) {
-                loadHospitals();
-            } else if (checkedId == R.id.rbBloodBanks) {
-                loadBloodBanks();
-            }
+            redrawMap();
         });
-
-        // Initialize mapping caches aggressively
-        preloadLocations();
 
         return view;
     }
 
-    private void preloadLocations() {
-        // Cache Areas
-        db.collection("locations_areas").get().addOnSuccessListener(querySnapshots -> {
-            cachedAreas.clear();
-            for (QueryDocumentSnapshot doc : querySnapshots) {
-                cachedAreas.add(doc.toObject(LocationModel.class));
-            }
-            // By default, trigger donors logic first natively since it was selected
-            if (rgMapMode.getCheckedRadioButtonId() == R.id.rbDonors) loadDonors();
-        });
-
-        // Cache Hospitals quietly in the background
-        db.collection("hospitals").get().addOnSuccessListener(querySnapshots -> {
-            cachedHospitals.clear();
-            for (QueryDocumentSnapshot doc : querySnapshots) {
-                cachedHospitals.add(doc.toObject(HospitalContactModel.class));
-            }
-        });
+    @Override
+    public void onStart() {
+        super.onStart();
         
-        // Cache Blood Banks actively
-        db.collection("blood_banks").get().addOnSuccessListener(querySnapshots -> {
-            cachedBloodBanks.clear();
-            for (QueryDocumentSnapshot doc : querySnapshots) {
-                cachedBloodBanks.add(doc.toObject(BloodBankModel.class));
+        areasRegistration = db.collection("locations_areas").addSnapshotListener((querySnapshots, e) -> {
+            if (e == null && querySnapshots != null) {
+                cachedAreas.clear();
+                for (QueryDocumentSnapshot doc : querySnapshots) {
+                    cachedAreas.add(doc.toObject(LocationModel.class));
+                }
+                if (rgMapMode.getCheckedRadioButtonId() == R.id.rbDonors) {
+                    redrawMap();
+                }
             }
         });
-    }
 
-    private void loadDonors() {
-        if (map == null) return;
-        map.getOverlays().clear();
+        hospitalsRegistration = db.collection("hospitals").addSnapshotListener((querySnapshots, e) -> {
+            if (e == null && querySnapshots != null) {
+                cachedHospitals.clear();
+                for (QueryDocumentSnapshot doc : querySnapshots) {
+                    cachedHospitals.add(doc.toObject(HospitalContactModel.class));
+                }
+                if (rgMapMode.getCheckedRadioButtonId() == R.id.rbHospitals) {
+                    redrawMap();
+                }
+            }
+        });
 
-        db.collection("users").whereEqualTo("availableToDonate", true).get()
-            .addOnSuccessListener(querySnapshots -> {
+        bloodBanksRegistration = db.collection("blood_banks").addSnapshotListener((querySnapshots, e) -> {
+            if (e == null && querySnapshots != null) {
+                cachedBloodBanks.clear();
+                for (QueryDocumentSnapshot doc : querySnapshots) {
+                    cachedBloodBanks.add(doc.toObject(BloodBankModel.class));
+                }
+                if (rgMapMode.getCheckedRadioButtonId() == R.id.rbBloodBanks) {
+                    redrawMap();
+                }
+            }
+        });
+
+        donorsRegistration = db.collection("users").whereEqualTo("availableToDonate", true).addSnapshotListener((querySnapshots, e) -> {
+            if (e == null && querySnapshots != null) {
                 donorCounts.clear();
                 for (QueryDocumentSnapshot doc : querySnapshots) {
                     UserModel user = doc.toObject(UserModel.class);
@@ -127,16 +132,44 @@ public class HeatmapFragment extends Fragment {
                         donorCounts.put(area, donorCounts.getOrDefault(area, 0) + 1);
                     }
                 }
-
-                // Match counts against coordinates precisely
-                for (LocationModel area : cachedAreas) {
-                    int count = donorCounts.getOrDefault(area.getName(), 0);
-                    if (count > 0) {
-                        spawnMarker(area.getLatitude(), area.getLongitude(), area.getName(), count + " Active Donors Available");
-                    }
+                if (rgMapMode.getCheckedRadioButtonId() == R.id.rbDonors) {
+                    redrawMap();
                 }
-                map.invalidate();
-            });
+            }
+        });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (areasRegistration != null) areasRegistration.remove();
+        if (hospitalsRegistration != null) hospitalsRegistration.remove();
+        if (bloodBanksRegistration != null) bloodBanksRegistration.remove();
+        if (donorsRegistration != null) donorsRegistration.remove();
+    }
+
+    private void redrawMap() {
+        int checkedId = rgMapMode.getCheckedRadioButtonId();
+        if (checkedId == R.id.rbDonors) {
+            loadDonors();
+        } else if (checkedId == R.id.rbHospitals) {
+            loadHospitals();
+        } else if (checkedId == R.id.rbBloodBanks) {
+            loadBloodBanks();
+        }
+    }
+
+    private void loadDonors() {
+        if (map == null) return;
+        map.getOverlays().clear();
+
+        for (LocationModel area : cachedAreas) {
+            int count = donorCounts.getOrDefault(area.getName(), 0);
+            if (count > 0) {
+                spawnMarker(area.getLatitude(), area.getLongitude(), area.getName(), count + " Active Donors Available");
+            }
+        }
+        map.invalidate();
     }
 
     private void loadHospitals() {

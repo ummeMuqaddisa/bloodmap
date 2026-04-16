@@ -13,9 +13,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,97 +71,135 @@ public class ManageRequestActivity extends AppCompatActivity implements Responde
         }
 
         btnCloseRequest.setOnClickListener(v -> handleCloseRequest());
-
-        fetchTransactionContext();
     }
 
-    private void fetchTransactionContext() {
-        FirebaseFirestore.getInstance().collection("transactions").document(transactionId).get()
-            .addOnSuccessListener(documentSnapshot -> {
-                if (documentSnapshot.exists()) {
-                    currentTransaction = documentSnapshot.toObject(BloodTransactionModel.class);
-                    if (currentTransaction != null) {
-                        tvManageHeader.setText(currentTransaction.getBloodGroup() + " Required (" + currentTransaction.getUnitsRequired() + " Units)");
-                        
-                        String patientStr = "Patient: " + currentTransaction.getPatientName();
-                        if (currentTransaction.getPatientAge() != null && !currentTransaction.getPatientAge().isEmpty()) {
-                            patientStr += " (Age: " + currentTransaction.getPatientAge();
-                            if (currentTransaction.getPatientGender() != null && !currentTransaction.getPatientGender().isEmpty()) {
-                                patientStr += ", " + currentTransaction.getPatientGender();
-                            }
-                            patientStr += ")";
-                        } else if (currentTransaction.getPatientGender() != null && !currentTransaction.getPatientGender().isEmpty()) {
-                            patientStr += " (" + currentTransaction.getPatientGender() + ")";
-                        }
-                        tvPatientDetails.setText(patientStr);
+    private ListenerRegistration transactionRegistration;
+    private ListenerRegistration respondersRegistration;
+    private List<String> lastKnownResponderUids = new ArrayList<>();
 
-                        if (currentTransaction.getReason() != null && !currentTransaction.getReason().isEmpty()) {
-                            tvReason.setText("Reason: " + currentTransaction.getReason());
-                            tvReason.setVisibility(View.VISIBLE);
-                        } else {
-                            tvReason.setVisibility(View.GONE);
-                        }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        listenToTransaction();
+    }
 
-                        if (currentTransaction.getUrgencyLevel() != null && !currentTransaction.getUrgencyLevel().isEmpty()) {
-                            tvUrgency.setText(currentTransaction.getUrgencyLevel());
-                            tvUrgency.setVisibility(View.VISIBLE);
-                        } else {
-                            tvUrgency.setVisibility(View.GONE);
-                        }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (transactionRegistration != null) {
+            transactionRegistration.remove();
+            transactionRegistration = null;
+        }
+        if (respondersRegistration != null) {
+            respondersRegistration.remove();
+            respondersRegistration = null;
+        }
+    }
 
-                        String location = currentTransaction.getHospitalNameArea() != null ? currentTransaction.getHospitalNameArea() : "";
-                        if (currentTransaction.getArea() != null && !currentTransaction.getArea().isEmpty()) {
-                            if (!location.isEmpty()) location += ", ";
-                            location += currentTransaction.getArea();
-                        }
-                        tvHospital.setText("Location: " + location);
-
-                        if (currentTransaction.getNeededByTime() > 0) {
-                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault());
-                            tvTime.setText("Needed By: " + sdf.format(new java.util.Date(currentTransaction.getNeededByTime())));
-                        } else {
-                            tvTime.setText("Needed By: ASAP");
-                        }
-
-                        fetchResponders(currentTransaction.getResponderUids());
+    private void listenToTransaction() {
+        transactionRegistration = FirebaseFirestore.getInstance().collection("transactions").document(transactionId)
+            .addSnapshotListener((documentSnapshot, e) -> {
+                if (e != null || documentSnapshot == null || !documentSnapshot.exists()) {
+                    if (documentSnapshot != null && !documentSnapshot.exists()) {
+                        tvManageHeader.setText("Transaction Deleted");
                     }
-                } else {
-                    tvManageHeader.setText("Transaction Deleted");
+                    return;
                 }
-            })
-            .addOnFailureListener(e -> {
-                tvManageHeader.setText("Error loading transaction.");
+
+                currentTransaction = documentSnapshot.toObject(BloodTransactionModel.class);
+                if (currentTransaction != null) {
+                    updateUIWithTransaction();
+                    
+                    List<String> currentUids = currentTransaction.getResponderUids();
+                    if (currentUids == null) currentUids = new ArrayList<>();
+                    
+                    if (!currentUids.equals(lastKnownResponderUids)) {
+                        lastKnownResponderUids = new ArrayList<>(currentUids);
+                        listenToResponders(currentUids);
+                    }
+                }
             });
     }
 
-    private void fetchResponders(List<String> responderUids) {
+    private void updateUIWithTransaction() {
+        tvManageHeader.setText(currentTransaction.getBloodGroup() + " Required (" + currentTransaction.getUnitsRequired() + " Units)");
+        
+        String patientStr = "Patient: " + currentTransaction.getPatientName();
+        if (currentTransaction.getPatientAge() != null && !currentTransaction.getPatientAge().isEmpty()) {
+            patientStr += " (Age: " + currentTransaction.getPatientAge();
+            if (currentTransaction.getPatientGender() != null && !currentTransaction.getPatientGender().isEmpty()) {
+                patientStr += ", " + currentTransaction.getPatientGender();
+            }
+            patientStr += ")";
+        } else if (currentTransaction.getPatientGender() != null && !currentTransaction.getPatientGender().isEmpty()) {
+            patientStr += " (" + currentTransaction.getPatientGender() + ")";
+        }
+        tvPatientDetails.setText(patientStr);
+
+        if (currentTransaction.getReason() != null && !currentTransaction.getReason().isEmpty()) {
+            tvReason.setText("Reason: " + currentTransaction.getReason());
+            tvReason.setVisibility(View.VISIBLE);
+        } else {
+            tvReason.setVisibility(View.GONE);
+        }
+
+        if (currentTransaction.getUrgencyLevel() != null && !currentTransaction.getUrgencyLevel().isEmpty()) {
+            tvUrgency.setText(currentTransaction.getUrgencyLevel());
+            tvUrgency.setVisibility(View.VISIBLE);
+        } else {
+            tvUrgency.setVisibility(View.GONE);
+        }
+
+        String location = currentTransaction.getHospitalNameArea() != null ? currentTransaction.getHospitalNameArea() : "";
+        if (currentTransaction.getArea() != null && !currentTransaction.getArea().isEmpty()) {
+            if (!location.isEmpty()) location += ", ";
+            location += currentTransaction.getArea();
+        }
+        tvHospital.setText("Location: " + location);
+
+        if (currentTransaction.getNeededByTime() > 0) {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault());
+            tvTime.setText("Needed By: " + sdf.format(new java.util.Date(currentTransaction.getNeededByTime())));
+        } else {
+            tvTime.setText("Needed By: ASAP");
+        }
+    }
+
+    private void listenToResponders(List<String> responderUids) {
+        if (respondersRegistration != null) {
+            respondersRegistration.remove();
+            respondersRegistration = null;
+        }
+
         if (responderUids == null || responderUids.isEmpty()) {
+            responderList.clear();
+            adapter.notifyDataSetChanged();
             tvEmpty.setVisibility(View.VISIBLE);
             return;
         }
 
-        List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // Firestore whereIn supports up to 30 items.
+        List<String> limitedUids = responderUids.size() > 30 ? responderUids.subList(0, 30) : responderUids;
 
-        for (String uid : responderUids) {
-            tasks.add(db.collection("users").document(uid).get());
-        }
-
-        Tasks.whenAllSuccess(tasks).addOnSuccessListener(objects -> {
-            responderList.clear();
-            for (Object obj : objects) {
-                DocumentSnapshot doc = (DocumentSnapshot) obj;
-                if (doc.exists()) {
-                    responderList.add(doc.toObject(UserModel.class));
+        respondersRegistration = FirebaseFirestore.getInstance().collection("users")
+            .whereIn("uid", limitedUids)
+            .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                if (e != null) return;
+                
+                if (queryDocumentSnapshots != null) {
+                    responderList.clear();
+                    for (com.google.firebase.firestore.QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        responderList.add(doc.toObject(UserModel.class));
+                    }
+                    adapter.notifyDataSetChanged();
+                    
+                    if (responderList.isEmpty()) {
+                        tvEmpty.setVisibility(View.VISIBLE);
+                    } else {
+                        tvEmpty.setVisibility(View.GONE);
+                    }
                 }
-            }
-            adapter.notifyDataSetChanged();
-            if (responderList.isEmpty()) {
-                tvEmpty.setVisibility(View.VISIBLE);
-            } else {
-                tvEmpty.setVisibility(View.GONE);
-            }
-        });
+            });
     }
 
     private void handleCloseRequest() {
@@ -193,6 +236,20 @@ public class ManageRequestActivity extends AppCompatActivity implements Responde
                 FirebaseFirestore.getInstance().collection("transactions").document(transactionId)
                     .update(updates)
                     .addOnSuccessListener(aVoid -> {
+                        Map<String, Object> userUpdates = new HashMap<>();
+                        userUpdates.put("totalDonations", FieldValue.increment(1));
+                        userUpdates.put("lastDonationDate", new Date());
+                        
+                        Calendar cal = Calendar.getInstance();
+
+                        //cooldown time
+                        cal.add(Calendar.DAY_OF_YEAR, 90);
+                        userUpdates.put("nextEligibleDate", cal.getTime());
+                        userUpdates.put("availableToDonate", false);
+
+                        FirebaseFirestore.getInstance().collection("users").document(userModel.getUid())
+                            .update(userUpdates);
+
                         Toast.makeText(this, "Transaction completed globally!", Toast.LENGTH_LONG).show();
                         finish();
                     });

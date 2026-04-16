@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import com.google.firebase.firestore.ListenerRegistration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,31 +42,45 @@ public class OpenRequestsActivity extends AppCompatActivity implements MyRequest
         recyclerView.setAdapter(adapter);
     }
 
+    private ListenerRegistration requestsRegistration;
+
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         loadOpenRequests();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (requestsRegistration != null) {
+            requestsRegistration.remove();
+            requestsRegistration = null;
+        }
     }
     
     private void loadOpenRequests() {
         String currentUid = FirebaseAuth.getInstance().getUid();
         if (currentUid == null) return;
         
-        FirebaseFirestore.getInstance().collection("transactions")
+        requestsRegistration = FirebaseFirestore.getInstance().collection("transactions")
             .whereEqualTo("requesterUid", currentUid)
             .whereEqualTo("status", "OPEN")
-            .get()
-            .addOnSuccessListener(queryDocumentSnapshots -> {
-                requestList.clear();
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    requestList.add(doc.toObject(BloodTransactionModel.class));
-                }
-                adapter.notifyDataSetChanged();
+            .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                if (e != null) return;
                 
-                if (requestList.isEmpty()) {
-                    tvEmpty.setVisibility(View.VISIBLE);
-                } else {
-                    tvEmpty.setVisibility(View.GONE);
+                if (queryDocumentSnapshots != null) {
+                    requestList.clear();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        requestList.add(doc.toObject(BloodTransactionModel.class));
+                    }
+                    adapter.notifyDataSetChanged();
+                    
+                    if (requestList.isEmpty()) {
+                        tvEmpty.setVisibility(View.VISIBLE);
+                    } else {
+                        tvEmpty.setVisibility(View.GONE);
+                    }
                 }
             });
     }

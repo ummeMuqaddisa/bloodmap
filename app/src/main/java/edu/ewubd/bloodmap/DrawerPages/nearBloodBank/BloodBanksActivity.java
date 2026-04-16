@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -43,10 +44,21 @@ public class BloodBanksActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBarBanks);
     }
 
+    private ListenerRegistration bankRegistration;
+
     @Override
     protected void onStart() {
         super.onStart();
         loadBloodBanks();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (bankRegistration != null) {
+            bankRegistration.remove();
+            bankRegistration = null;
+        }
     }
 
 
@@ -55,8 +67,8 @@ public class BloodBanksActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
  
-        FirebaseFirestore.getInstance().collection("blood_banks")
-            .addSnapshotListener(this, (queryDocumentSnapshots, e) -> {
+        bankRegistration = FirebaseFirestore.getInstance().collection("blood_banks")
+            .addSnapshotListener((queryDocumentSnapshots, e) -> {
                 progressBar.setVisibility(View.GONE);
                 
                 if (e != null) {

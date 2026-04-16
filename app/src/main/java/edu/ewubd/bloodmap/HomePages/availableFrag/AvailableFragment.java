@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class AvailableFragment extends Fragment {
     private AvailableHierarchyAdapter adapter;
     private List<AvailableItemModel> masterList = new ArrayList<>();
     private List<AvailableItemModel> filteredList = new ArrayList<>();
+    private ListenerRegistration availableRegistration;
 
     @Nullable
     @Override
@@ -50,8 +52,6 @@ public class AvailableFragment extends Fragment {
         adapter = new AvailableHierarchyAdapter(getContext(), filteredList);
         rvAvailableHierarchy.setAdapter(adapter);
 
-        fetchAvailableDonors();
-
         etSearchAvailable.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -63,39 +63,56 @@ public class AvailableFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        fetchAvailableDonors();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (availableRegistration != null) {
+            availableRegistration.remove();
+            availableRegistration = null;
+        }
+    }
+
     private void fetchAvailableDonors() {
-        FirebaseFirestore.getInstance().collection("users")
+        availableRegistration = FirebaseFirestore.getInstance().collection("users")
                 .whereEqualTo("availableToDonate", true)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    
-                    Map<String, List<UserModel>> areaGroups = new HashMap<>();
-
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        try {
-                            UserModel user = doc.toObject(UserModel.class);
-                            String area = (user.getLocationArea() != null && !user.getLocationArea().isEmpty()) 
-                                            ? user.getLocationArea() : "Unknown Area";
-                            
-                            if (!areaGroups.containsKey(area)) {
-                                areaGroups.put(area, new ArrayList<>());
-                            }
-                            areaGroups.get(area).add(user);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), "Failed to fetch donors.", Toast.LENGTH_SHORT).show();
                         }
+                        return;
                     }
 
-                    buildHierarchy(areaGroups);
-                    
-                    if (pendingSearchQuery != null) {
-                        etSearchAvailable.setText(pendingSearchQuery);
-                        pendingSearchQuery = null;
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Failed to fetch donors.", Toast.LENGTH_SHORT).show();
+                    if (queryDocumentSnapshots != null) {
+                        Map<String, List<UserModel>> areaGroups = new HashMap<>();
+
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            try {
+                                UserModel user = doc.toObject(UserModel.class);
+                                String area = (user.getLocationArea() != null && !user.getLocationArea().isEmpty()) 
+                                                ? user.getLocationArea() : "Unknown Area";
+                                
+                                if (!areaGroups.containsKey(area)) {
+                                    areaGroups.put(area, new ArrayList<>());
+                                }
+                                areaGroups.get(area).add(user);
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+
+                        buildHierarchy(areaGroups);
+                        
+                        if (pendingSearchQuery != null) {
+                            etSearchAvailable.setText(pendingSearchQuery);
+                            pendingSearchQuery = null;
+                        }
                     }
                 });
     }

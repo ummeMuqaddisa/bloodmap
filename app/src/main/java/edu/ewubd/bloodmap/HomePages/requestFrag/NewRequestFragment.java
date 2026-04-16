@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.content.Intent;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 
@@ -21,6 +20,8 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.UUID;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 
 import edu.ewubd.bloodmap.ClassModels.BloodTransactionModel;
 import edu.ewubd.bloodmap.ClassModels.LocationModel;
+import edu.ewubd.bloodmap.MainActivity;
 import edu.ewubd.bloodmap.R;
 
 public class NewRequestFragment extends Fragment {
@@ -40,6 +42,13 @@ public class NewRequestFragment extends Fragment {
     private double selectedLongitude = 0.0;
     private Spinner spinnerPatientGender, spinnerBloodGroup, spinnerUrgencyLevel;
     private Button btnSubmitRequest;
+    
+    private List<LocationModel> hospitalList = new ArrayList<>();
+    private ArrayAdapter<LocationModel> hospitalAdapter;
+    private List<LocationModel> areaList = new ArrayList<>();
+    private ArrayAdapter<LocationModel> areaAdapter;
+    private ListenerRegistration hospitalsRegistration;
+    private ListenerRegistration areasRegistration;
 
 
 
@@ -90,29 +99,11 @@ public class NewRequestFragment extends Fragment {
         spinnerUrgencyLevel.setAdapter(urgencyAdapter);
 
         // Setup Autocomplete Adapters using Firebase
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        
-        List<LocationModel> hospitalList = new ArrayList<>();
-        ArrayAdapter<LocationModel> hospitalAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, hospitalList);
+        hospitalAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, hospitalList);
         etHospitalDetails.setAdapter(hospitalAdapter);
-        
-        db.collection("locations_hospitals").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                hospitalList.add(doc.toObject(LocationModel.class));
-            }
-            hospitalAdapter.notifyDataSetChanged();
-        });
 
-        List<LocationModel> areaList = new ArrayList<>();
-        ArrayAdapter<LocationModel> areaAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, areaList);
+        areaAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, areaList);
         etArea.setAdapter(areaAdapter);
-        
-        db.collection("locations_areas").get().addOnSuccessListener(queryDocumentSnapshots -> {
-            for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                areaList.add(doc.toObject(LocationModel.class));
-            }
-            areaAdapter.notifyDataSetChanged();
-        });
 
         etHospitalDetails.setOnItemClickListener((parent, view, position, id) -> {
             LocationModel selected = hospitalAdapter.getItem(position);
@@ -129,6 +120,45 @@ public class NewRequestFragment extends Fragment {
                 selectedLongitude = selected.getLongitude();
             }
         });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        
+        hospitalsRegistration = db.collection("locations_hospitals").addSnapshotListener((queryDocumentSnapshots, e) -> {
+            if (e == null && queryDocumentSnapshots != null) {
+                hospitalList.clear();
+                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                    hospitalList.add(doc.toObject(LocationModel.class));
+                }
+                if (hospitalAdapter != null) hospitalAdapter.notifyDataSetChanged();
+            }
+        });
+
+        areasRegistration = db.collection("locations_areas").addSnapshotListener((queryDocumentSnapshots, e) -> {
+            if (e == null && queryDocumentSnapshots != null) {
+                areaList.clear();
+                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                    areaList.add(doc.toObject(LocationModel.class));
+                }
+                if (areaAdapter != null) areaAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (hospitalsRegistration != null) {
+            hospitalsRegistration.remove();
+            hospitalsRegistration = null;
+        }
+        if (areasRegistration != null) {
+            areasRegistration.remove();
+            areasRegistration = null;
+        }
     }
 
     private void showDateTimePicker() {
@@ -216,9 +246,15 @@ public class NewRequestFragment extends Fragment {
 
         FirebaseFirestore.getInstance().collection("transactions").document(transactionId).set(model)
             .addOnSuccessListener(aVoid -> {
+                FirebaseFirestore.getInstance().collection("users").document(user.getUid())
+                    .update("totalRequests", FieldValue.increment(1));
+                
                 if (getContext() != null) {
                     Toast.makeText(getContext(), "Blood request submitted successfully!", Toast.LENGTH_SHORT).show();
                     resetForm();
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).selectTab(0);
+                    }
                 }
             })
             .addOnFailureListener(e -> {
