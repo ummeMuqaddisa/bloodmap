@@ -61,14 +61,6 @@
             android:textSize="14sp" />
 
         <TextView
-            android:id="@+id/tvNotes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textColor="#555555"
-            android:textSize="14sp" />
-
-        <TextView
             android:id="@+id/tvHospital"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -84,8 +76,8 @@
             android:textColor="#777777"
             android:textStyle="bold"
             android:textSize="12sp" />
-            
-        <!-- Action Footer -->
+
+        <!-- Status & Manage Action -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -94,26 +86,24 @@
             android:layout_marginTop="12dp">
             
             <TextView
-                android:id="@+id/tvStatusMessage"
+                android:id="@+id/tvResponsesCount"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#2E7D32"
+                android:textColor="#1976D2"
                 android:textStyle="bold"
-                android:textSize="13sp" />
+                android:textSize="14sp" />
 
             <Button
-                android:id="@+id/btnRespond"
+                android:id="@+id/btnManage"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:backgroundTint="#D11A2A"
+                android:backgroundTint="#333333"
                 android:textColor="#FFFFFF"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:paddingHorizontal="16dp"
-                android:text="RESPOND" />
-                
+                android:text="MANAGE" />
         </LinearLayout>
-            
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -1,0 +1,16 @@
+when app start check to update transaction status
+when app start update user location for sorting by nearest
+
+
+
+
+
+user:
+setup profile alert for new user before doing any action
+live update needed
+cooldown functioanity if donation happens
+
+
+Admin:
+prev req shold show more data
+active req also should show the responders and everything

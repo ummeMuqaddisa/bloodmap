@@ -16,32 +16,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="4dp">
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:textColor="#D11A2A"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvUrgency"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:background="#FFCDD2"
-                android:textColor="#C62828"
-                android:textStyle="bold"
-                android:textSize="12sp" />
-        </LinearLayout>
+            android:textColor="#D11A2A"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvPatientDetails"
@@ -52,23 +33,6 @@
             android:textSize="14sp" />
 
         <TextView
-            android:id="@+id/tvReason"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textColor="#666666"
-            android:textStyle="italic"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/tvNotes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textColor="#555555"
-            android:textSize="14sp" />
-
-        <TextView
             android:id="@+id/tvHospital"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -76,16 +40,7 @@
             android:textColor="#555555"
             android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/tvTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="#777777"
-            android:textStyle="bold"
-            android:textSize="12sp" />
-            
-        <!-- Action Footer -->
+        <!-- Status & Manage Action -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -94,26 +49,24 @@
             android:layout_marginTop="12dp">
             
             <TextView
-                android:id="@+id/tvStatusMessage"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#2E7D32"
+                android:textColor="#FF9800"
+                android:text="Response Sent! Waiting for Approval."
                 android:textStyle="bold"
                 android:textSize="13sp" />
 
             <Button
-                android:id="@+id/btnRespond"
+                android:id="@+id/btnWithdraw"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:backgroundTint="#D11A2A"
+                android:backgroundTint="#888888"
                 android:textColor="#FFFFFF"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:paddingHorizontal="16dp"
-                android:text="RESPOND" />
-                
+                android:text="WITHDRAW" />
         </LinearLayout>
-            
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -36,12 +36,20 @@
         <activity android:name=".admin.AdminRequestsActivity" android:exported="false" />
         <activity android:name=".admin.AdminManageLocationsActivity" android:exported="false" />
         <activity android:name=".ProfilePage.ProfileActivity" android:exported="false" />
-        <activity android:name=".DrawerPages.OpenRequestsActivity" android:exported="false" />
-        <activity android:name=".DrawerPages.OpenResponsesActivity" android:exported="false" />
-        <activity android:name=".DrawerPages.DonationHistoryActivity" android:exported="false" />
-        <activity android:name=".DrawerPages.ReceivedHistoryActivity" android:exported="false" />
-        <activity android:name=".DrawerPages.HospitalContactsActivity" android:exported="false" />
-        <activity android:name=".DrawerPages.BloodBanksActivity" android:exported="false" />
+        <activity
+            android:name=".DrawerPages.myRequst.OpenRequestsActivity"
+            android:exported="false" />
+            
+        <activity
+            android:name=".DrawerPages.myRequst.ManageRequestActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".DrawerPages.myResponse.OpenResponsesActivity" android:exported="false" />
+        <activity android:name=".DrawerPages.donationHistory.DonationHistoryActivity" android:exported="false" />
+        <activity android:name=".DrawerPages.requestHistory.ReceivedHistoryActivity" android:exported="false" />
+        <activity android:name=".DrawerPages.nearHospital.HospitalContactsActivity" android:exported="false" />
+        <activity android:name=".DrawerPages.nearBloodBank.BloodBanksActivity" android:exported="false" />
         <activity android:name=".DrawerPages.ChatbotActivity" android:exported="false" />
     </application>
 
