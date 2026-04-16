@@ -12,16 +12,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 import edu.ewubd.bloodmap.ClassModels.HospitalContactModel;
 import edu.ewubd.bloodmap.R;
-import edu.ewubd.bloodmap.admin.AddHospitalActivity;
+import edu.ewubd.bloodmap.admin.hospitalsManagement.AddHospitalActivity;
 
 public class HospitalAdapter extends RecyclerView.Adapter<HospitalAdapter.HospitalViewHolder> {
 
     private List<HospitalContactModel> hospitalList;
-    private boolean isAdmin;
 
-    public HospitalAdapter(List<HospitalContactModel> hospitalList, boolean isAdmin) {
+
+    public HospitalAdapter(List<HospitalContactModel> hospitalList) {
         this.hospitalList = hospitalList;
-        this.isAdmin = isAdmin;
     }
 
     @NonNull
@@ -61,34 +60,8 @@ public class HospitalAdapter extends RecyclerView.Adapter<HospitalAdapter.Hospit
             holder.tvBloodBankStatus.setVisibility(View.GONE);
         }
 
-        // Handle Admin Edit Button
-        if (isAdmin) {
-            holder.btnEditHospital.setVisibility(View.VISIBLE);
-            holder.btnEditHospital.setOnClickListener(v -> {
-                Intent intent = new Intent(v.getContext(), AddHospitalActivity.class);
-                intent.putExtra("ID", model.getHospitalId());
-                intent.putExtra("NAME", model.getHospitalName());
-                intent.putExtra("PHONE", model.getContactNumber());
-                intent.putExtra("ADDRESS", model.getAddress());
-                intent.putExtra("LATITUDE", model.getLatitude());
-                intent.putExtra("LONGITUDE", model.getLongitude());
-                intent.putExtra("HAS_BLOOD_BANK", model.isHasBloodBank());
-                
-                // Pass facilities as comma separated string
-                if (model.getAvailableFacilities() != null) {
-                    StringBuilder fsb = new StringBuilder();
-                    for (int i = 0; i < model.getAvailableFacilities().size(); i++) {
-                        fsb.append(model.getAvailableFacilities().get(i));
-                        if (i < model.getAvailableFacilities().size() - 1) fsb.append(", ");
-                    }
-                    intent.putExtra("FACILITIES", fsb.toString());
-                }
-                
-                v.getContext().startActivity(intent);
-            });
-        } else {
-            holder.btnEditHospital.setVisibility(View.GONE);
-        }
+        // Always hide edit button for normal users
+        holder.btnEditHospital.setVisibility(View.GONE);
     }
 
     @Override

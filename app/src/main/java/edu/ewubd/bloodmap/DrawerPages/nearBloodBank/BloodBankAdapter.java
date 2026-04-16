@@ -13,16 +13,15 @@ import java.util.List;
 import java.util.Map;
 import edu.ewubd.bloodmap.ClassModels.BloodBankModel;
 import edu.ewubd.bloodmap.R;
-import edu.ewubd.bloodmap.admin.AddBloodBankActivity;
+import edu.ewubd.bloodmap.admin.bloodbankManagement.AddBloodBankActivity;
 
 public class BloodBankAdapter extends RecyclerView.Adapter<BloodBankAdapter.BankViewHolder> {
 
     private List<BloodBankModel> bankList;
-    private boolean isAdmin;
 
-    public BloodBankAdapter(List<BloodBankModel> bankList, boolean isAdmin) {
+
+    public BloodBankAdapter(List<BloodBankModel> bankList) {
         this.bankList = bankList;
-        this.isAdmin = isAdmin;
     }
 
     @NonNull
@@ -67,23 +66,8 @@ public class BloodBankAdapter extends RecyclerView.Adapter<BloodBankAdapter.Bank
             holder.tv24hBadge.setVisibility(View.GONE);
         }
 
-        if (isAdmin) {
-            holder.btnEditBank.setVisibility(View.VISIBLE);
-            holder.btnEditBank.setOnClickListener(v -> {
-                Intent intent = new Intent(v.getContext(), AddBloodBankActivity.class);
-                intent.putExtra("ID", model.getBloodBankId());
-                intent.putExtra("NAME", model.getBankName());
-                intent.putExtra("PHONE", model.getContactNumber());
-                intent.putExtra("ADDRESS", model.getAddress());
-                intent.putExtra("LATITUDE", model.getLatitude());
-                intent.putExtra("LONGITUDE", model.getLongitude());
-                intent.putExtra("IS_OPEN_24H", model.isOpen24Hours());
-                intent.putExtra("STOCK", (Serializable) model.getAvailableStock());
-                v.getContext().startActivity(intent);
-            });
-        } else {
-            holder.btnEditBank.setVisibility(View.GONE);
-        }
+        // Always hide edit button for normal users
+        holder.btnEditBank.setVisibility(View.GONE);
     }
 
     @Override
