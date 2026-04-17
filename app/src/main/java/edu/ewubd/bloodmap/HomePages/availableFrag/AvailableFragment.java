@@ -29,10 +29,9 @@ import edu.ewubd.bloodmap.R;
 
 public class AvailableFragment extends Fragment {
 
-    public static String pendingSearchQuery = null;
-
     private RecyclerView rvAvailableHierarchy;
     private EditText etSearchAvailable;
+    private String pendingSearchQuery = null; // set via Bundle args, not a static field
     
     private AvailableHierarchyAdapter adapter;
     private List<AvailableItemModel> masterList = new ArrayList<>();
@@ -59,6 +58,11 @@ public class AvailableFragment extends Fragment {
             }
             @Override public void afterTextChanged(Editable s) {}
         });
+
+        // Read search query from Bundle args (set by navigateToAvailableWithQuery in MainActivity)
+        if (getArguments() != null) {
+            pendingSearchQuery = getArguments().getString("searchQuery");
+        }
 
         return view;
     }

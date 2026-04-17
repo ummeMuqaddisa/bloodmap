@@ -201,7 +201,7 @@ public class NewRequestFragment extends Fragment {
         String contactNumber = etContactNumber.getText().toString().trim();
         String notes = etNotes.getText().toString().trim();
 
-        if (patientName.isEmpty() || patientAge.isEmpty() || unitsStr.isEmpty()  ||
+        if (patientName.isEmpty() || patientAge.isEmpty() || unitsStr.isEmpty() ||
             hospitalDetails.isEmpty() || area.isEmpty() || contactNumber.isEmpty() || neededByTimeInMillis == 0) {
             Toast.makeText(getContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show();
             return;
@@ -212,7 +212,7 @@ public class NewRequestFragment extends Fragment {
             return;
         }
 
-        int unitsRequired = 0;
+        int unitsRequired;
         try {
             unitsRequired = Integer.parseInt(unitsStr);
         } catch (NumberFormatException e) {
@@ -226,49 +226,9 @@ public class NewRequestFragment extends Fragment {
             return;
         }
 
-        // Check ban & premium status before submitting
-        FirebaseFirestore.getInstance().collection("users").document(user.getUid()).get()
-            .addOnSuccessListener(userDoc -> {
-                if (getContext() == null) return;
-
-                // Ban check
-                String userStatus = userDoc.getString("status");
-                if ("BLOCKED".equalsIgnoreCase(userStatus)) {
-                    new AlertDialog.Builder(getContext())
-                        .setTitle("Account Suspended")
-                        .setMessage("You have been banned. You cannot perform this operation.")
-                        .setPositiveButton("OK", null)
-                        .show();
-                    return;
-                }
-
-                boolean isPremium = "PREMIUM".equalsIgnoreCase(userDoc.getString("subscriptionPlan"));
-                submitRequestToFirestore(user, bloodGroup, isPremium);
-            })
-            .addOnFailureListener(e -> {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Failed to verify account status.", Toast.LENGTH_SHORT).show();
-                }
-            });
-    }
-
-    private void submitRequestToFirestore(FirebaseUser user, String bloodGroup, boolean isPremium) {
-        String patientName = etPatientName.getText().toString().trim();
-        String patientAge = etPatientAge.getText().toString().trim();
-        String gender = spinnerPatientGender.getSelectedItem().toString();
-        String unitsStr = etUnitsRequired.getText().toString().trim();
-        String urgency = spinnerUrgencyLevel.getSelectedItem().toString();
-        String reason = etReason.getText().toString().trim();
-        String hospitalDetails = etHospitalDetails.getText().toString().trim();
-        String area = etArea.getText().toString().trim();
-        String contactNumber = etContactNumber.getText().toString().trim();
-        String notes = etNotes.getText().toString().trim();
-        int unitsRequired = 0;
-        try { unitsRequired = Integer.parseInt(unitsStr); } catch (NumberFormatException ignored) {}
-
-        String transactionId = UUID.randomUUID().toString();
+        // Build the model once here — no re-reading fields later
         BloodTransactionModel model = new BloodTransactionModel();
-        model.setTransactionId(transactionId);
+        model.setTransactionId(UUID.randomUUID().toString());
         model.setRequesterUid(user.getUid());
         model.setPatientName(patientName);
         model.setPatientAge(patientAge);
@@ -287,18 +247,44 @@ public class NewRequestFragment extends Fragment {
         model.setCompletedAt(0);
         model.setLatitude(selectedLatitude);
         model.setLongitude(selectedLongitude);
-        model.setPremiumRequest(isPremium);
 
-        FirebaseFirestore.getInstance().collection("transactions").document(transactionId).set(model)
+        // Check ban & premium status, then submit
+        FirebaseFirestore.getInstance().collection("users").document(user.getUid()).get()
+            .addOnSuccessListener(userDoc -> {
+                if (getContext() == null) return;
+
+                String userStatus = userDoc.getString("status");
+                if ("BLOCKED".equalsIgnoreCase(userStatus)) {
+                    new AlertDialog.Builder(getContext())
+                        .setTitle("Account Suspended")
+                        .setMessage("You have been banned. You cannot perform this operation.")
+                        .setPositiveButton("OK", null)
+                        .show();
+                    return;
+                }
+
+                boolean isPremium = "PREMIUM".equalsIgnoreCase(userDoc.getString("subscriptionPlan"));
+                model.setPremiumRequest(isPremium);
+                submitRequestToFirestore(user, model, isPremium);
+            })
+            .addOnFailureListener(e -> {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Failed to verify account status.", Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+
+    private void submitRequestToFirestore(FirebaseUser user, BloodTransactionModel model, boolean isPremium) {
+        FirebaseFirestore.getInstance().collection("transactions").document(model.getTransactionId()).set(model)
             .addOnSuccessListener(aVoid -> {
                 FirebaseFirestore.getInstance().collection("users").document(user.getUid())
                     .update("totalRequests", FieldValue.increment(1));
-                
+
                 if (getContext() != null) {
                     Toast.makeText(getContext(), "Blood request submitted!", Toast.LENGTH_SHORT).show();
                     if (isPremium) {
                         android.content.Context appContext = getContext().getApplicationContext();
-                        broadcastPremiumNotification(appContext, transactionId, bloodGroup);
+                        broadcastPremiumNotification(appContext, model.getTransactionId(), model.getBloodGroup());
                     }
                     resetForm();
                     if (getActivity() instanceof MainActivity) {

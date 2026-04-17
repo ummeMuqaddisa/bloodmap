@@ -105,11 +105,6 @@ public class OpenResponsesActivity extends AppCompatActivity implements MyRespon
             .update("responderUids", FieldValue.arrayRemove(currentUid))
             .addOnSuccessListener(aVoid -> {
                 Toast.makeText(this, "Response withdrawn.", Toast.LENGTH_SHORT).show();
-                requestList.remove(position);
-                adapter.notifyItemRemoved(position);
-                if (requestList.isEmpty()) {
-                    tvEmpty.setVisibility(View.VISIBLE);
-                }
             })
             .addOnFailureListener(e -> {
                 Toast.makeText(this, "Failed to withdraw response.", Toast.LENGTH_SHORT).show();

@@ -82,9 +82,9 @@ public class NotificationSender {
         if (responseCode != 200) {
             try (InputStream errorStream = conn.getErrorStream()) {
                 if (errorStream != null) {
-                    byte[] buffer = new byte[1024];
-                    int read = errorStream.read(buffer);
-                    Log.e("NotificationSender", "FCM Error: " + new String(buffer, 0, read));
+                    java.util.Scanner scanner = new java.util.Scanner(errorStream, StandardCharsets.UTF_8.name()).useDelimiter("\\A");
+                    String errorBody = scanner.hasNext() ? scanner.next() : "(empty response)";
+                    Log.e("NotificationSender", "FCM Error [" + responseCode + "]: " + errorBody);
                 }
             }
         }

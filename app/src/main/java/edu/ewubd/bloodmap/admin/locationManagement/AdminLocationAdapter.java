@@ -22,11 +22,15 @@ public class AdminLocationAdapter extends RecyclerView.Adapter<AdminLocationAdap
 
     private final Context context;
     private final List<LocationModel> locationList;
-    private final String collectionName;
+    private String collectionName;
 
     public AdminLocationAdapter(Context context, List<LocationModel> locationList, String collectionName) {
         this.context = context;
         this.locationList = locationList;
+        this.collectionName = collectionName;
+    }
+
+    public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
     }
 

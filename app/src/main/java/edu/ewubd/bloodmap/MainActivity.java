@@ -79,9 +79,20 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.menu_chatbot).setOnClickListener(v -> closeDrawerAndStart(ChatbotActivity.class));
         
         findViewById(R.id.menu_logout).setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(this, AuthActivity.class));
-            finish();
+            String uid = FirebaseAuth.getInstance().getUid();
+            if (uid != null) {
+                FirebaseFirestore.getInstance().collection("users").document(uid)
+                        .update("token", null)
+                        .addOnCompleteListener(task -> {
+                            FirebaseAuth.getInstance().signOut();
+                            startActivity(new Intent(this, AuthActivity.class));
+                            finish();
+                        });
+            } else {
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(this, AuthActivity.class));
+                finish();
+            }
         });
 
         if (savedInstanceState == null) {
@@ -125,10 +136,8 @@ public class MainActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().getToken()
                 .addOnSuccessListener(token -> {
                     if (token != null) {
-                        Map<String, Object> tokenUpdate = new HashMap<>();
-                        tokenUpdate.put("token", token);
                         FirebaseFirestore.getInstance().collection("users").document(uid)
-                                .update(tokenUpdate);
+                                .update("token", token);
                     }
                 });
     }
@@ -167,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                     Boolean isAvailable = documentSnapshot.getBoolean("availableToDonate");
                     Date nextEligibleDate = documentSnapshot.getDate("nextEligibleDate");
 
-                    if (Boolean.FALSE.equals(isAvailable) && nextEligibleDate != null) {
+                    if (isAvailable != null && !isAvailable && nextEligibleDate != null) {
                         if (new Date().after(nextEligibleDate)) {
                             Map<String, Object> eligibilityUpdate = new HashMap<>();
                             eligibilityUpdate.put("availableToDonate", true);
@@ -230,8 +239,23 @@ public class MainActivity extends AppCompatActivity {
         if (selectedFragment != null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, selectedFragment)
-                    .commit(); 
+                    .commit();
         }
+    }
+
+    /** Navigates to the Available tab, optionally pre-filling the search box with a query. */
+    public void navigateToAvailableWithQuery(String query) {
+        currentTabIndex = 2;
+        highlightTabBasedOnIndex(2);
+        AvailableFragment frag = new AvailableFragment();
+        if (query != null && !query.isEmpty()) {
+            Bundle args = new Bundle();
+            args.putString("searchQuery", query);
+            frag.setArguments(args);
+        }
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, frag)
+                .commit();
     }
 
     private void highlightTabBasedOnIndex(int index) {

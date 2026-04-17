@@ -99,6 +99,7 @@ public class ManageRequestActivity extends AppCompatActivity implements Responde
     private void listenToTransaction() {
         transactionRegistration = FirebaseFirestore.getInstance().collection("transactions").document(transactionId)
             .addSnapshotListener((documentSnapshot, e) -> {
+                if (isFinishing()) return;
                 if (e != null || documentSnapshot == null || !documentSnapshot.exists()) {
                     if (documentSnapshot != null && !documentSnapshot.exists()) {
                         tvManageHeader.setText("Transaction Deleted");
@@ -109,10 +110,10 @@ public class ManageRequestActivity extends AppCompatActivity implements Responde
                 currentTransaction = documentSnapshot.toObject(BloodTransactionModel.class);
                 if (currentTransaction != null) {
                     updateUIWithTransaction();
-                    
+
                     List<String> currentUids = currentTransaction.getResponderUids();
                     if (currentUids == null) currentUids = new ArrayList<>();
-                    
+
                     if (!currentUids.equals(lastKnownResponderUids)) {
                         lastKnownResponderUids = new ArrayList<>(currentUids);
                         listenToResponders(currentUids);
@@ -124,17 +125,7 @@ public class ManageRequestActivity extends AppCompatActivity implements Responde
     private void updateUIWithTransaction() {
         tvManageHeader.setText(currentTransaction.getBloodGroup() + " Required (" + currentTransaction.getUnitsRequired() + " Units)");
         
-        String patientStr = "Patient: " + currentTransaction.getPatientName();
-        if (currentTransaction.getPatientAge() != null && !currentTransaction.getPatientAge().isEmpty()) {
-            patientStr += " (Age: " + currentTransaction.getPatientAge();
-            if (currentTransaction.getPatientGender() != null && !currentTransaction.getPatientGender().isEmpty()) {
-                patientStr += ", " + currentTransaction.getPatientGender();
-            }
-            patientStr += ")";
-        } else if (currentTransaction.getPatientGender() != null && !currentTransaction.getPatientGender().isEmpty()) {
-            patientStr += " (" + currentTransaction.getPatientGender() + ")";
-        }
-        tvPatientDetails.setText(patientStr);
+        tvPatientDetails.setText(currentTransaction.formatPatientDetails());
 
         if (currentTransaction.getReason() != null && !currentTransaction.getReason().isEmpty()) {
             tvReason.setText("Reason: " + currentTransaction.getReason());
@@ -184,20 +175,16 @@ public class ManageRequestActivity extends AppCompatActivity implements Responde
         respondersRegistration = FirebaseFirestore.getInstance().collection("users")
             .whereIn("uid", limitedUids)
             .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                if (isFinishing()) return;
                 if (e != null) return;
-                
+
                 if (queryDocumentSnapshots != null) {
                     responderList.clear();
                     for (com.google.firebase.firestore.QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         responderList.add(doc.toObject(UserModel.class));
                     }
                     adapter.notifyDataSetChanged();
-                    
-                    if (responderList.isEmpty()) {
-                        tvEmpty.setVisibility(View.VISIBLE);
-                    } else {
-                        tvEmpty.setVisibility(View.GONE);
-                    }
+                    tvEmpty.setVisibility(responderList.isEmpty() ? View.VISIBLE : View.GONE);
                 }
             });
     }

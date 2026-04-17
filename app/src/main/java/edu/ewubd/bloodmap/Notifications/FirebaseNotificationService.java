@@ -16,10 +16,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.ewubd.bloodmap.DrawerPages.myRequst.ManageRequestActivity;
+
 import edu.ewubd.bloodmap.R;
 
 public class FirebaseNotificationService extends FirebaseMessagingService {
@@ -39,11 +39,8 @@ public class FirebaseNotificationService extends FirebaseMessagingService {
     }
 
     private void updateTokenInFirestore(String uid, String token) {
-        Map<String, Object> tokenUpdate = new HashMap<>();
-        tokenUpdate.put("token", token);
-        
         FirebaseFirestore.getInstance().collection("users").document(uid)
-                .update(tokenUpdate)
+                .update("token", token)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "Token updated successfully"))
                 .addOnFailureListener(e -> Log.e(TAG, "Error updating token", e));
     }

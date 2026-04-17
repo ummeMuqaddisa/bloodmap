@@ -45,17 +45,7 @@ public class MyRequestsAdapter extends RecyclerView.Adapter<MyRequestsAdapter.Vi
             holder.tvUrgency.setVisibility(View.GONE);
         }
 
-        String patientInfo = "Patient: " + model.getPatientName();
-        if (model.getPatientAge() != null && !model.getPatientAge().isEmpty()) {
-            patientInfo += " (Age: " + model.getPatientAge();
-            if (model.getPatientGender() != null && !model.getPatientGender().isEmpty()) {
-                patientInfo += ", Gender: " + model.getPatientGender();
-            }
-            patientInfo += ")";
-        } else if (model.getPatientGender() != null && !model.getPatientGender().isEmpty()) {
-            patientInfo += " (Gender: " + model.getPatientGender() + ")";
-        }
-        holder.tvPatientDetails.setText(patientInfo);
+        holder.tvPatientDetails.setText(model.formatPatientDetails());
 
         if (model.getReason() != null && !model.getReason().isEmpty()) {
             holder.tvReason.setText("Reason: " + model.getReason());

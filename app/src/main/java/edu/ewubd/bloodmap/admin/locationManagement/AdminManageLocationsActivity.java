@@ -28,6 +28,7 @@ import edu.ewubd.bloodmap.R;
 
 public class AdminManageLocationsActivity extends AppCompatActivity {
 
+
     private String currentCollection = "locations_hospitals"; // Default
     private String currentType = "hospital";
 
@@ -36,6 +37,7 @@ public class AdminManageLocationsActivity extends AppCompatActivity {
     private final List<LocationModel> locationList = new ArrayList<>();
     private ProgressBar progressBar;
     private ListenerRegistration currentListener;
+    private boolean spinnerReady = false; 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,10 @@ public class AdminManageLocationsActivity extends AppCompatActivity {
         rvLocations = findViewById(R.id.rvLocations);
         rvLocations.setLayoutManager(new LinearLayoutManager(this));
 
+        // Create adapter 
+        adapter = new AdminLocationAdapter(this, locationList, currentCollection);
+        rvLocations.setAdapter(adapter);
+
         Spinner spinnerType = findViewById(R.id.spinnerCollectionType);
         String[] types = {"Hospitals", "Areas"};
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, types);
@@ -55,13 +61,10 @@ public class AdminManageLocationsActivity extends AppCompatActivity {
         spinnerType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) {
-                    currentCollection = "locations_hospitals";
-                    currentType = "hospital";
-                } else {
-                    currentCollection = "locations_areas";
-                    currentType = "area";
-                }
+                if (!spinnerReady) { spinnerReady = true; return; } 
+                currentCollection = (position == 0) ? "locations_hospitals" : "locations_areas";
+                currentType = (position == 0) ? "hospital" : "area";
+                adapter.setCollectionName(currentCollection);
                 loadLocations();
             }
 
@@ -70,7 +73,7 @@ public class AdminManageLocationsActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.fabAddLocation).setOnClickListener(v -> showAddLocationDialog());
-        
+
         progressBar = findViewById(R.id.progressBarLocations);
     }
  
@@ -81,16 +84,13 @@ public class AdminManageLocationsActivity extends AppCompatActivity {
     }
 
     private void loadLocations() {
-        adapter = new AdminLocationAdapter(this, locationList, currentCollection);
-        rvLocations.setAdapter(adapter);
-
         progressBar.setVisibility(View.VISIBLE);
         rvLocations.setVisibility(View.GONE);
- 
+
         if (currentListener != null) {
             currentListener.remove();
         }
- 
+
         currentListener = FirebaseFirestore.getInstance().collection(currentCollection)
                 .addSnapshotListener(this, (queryDocumentSnapshots, e) -> {
                     progressBar.setVisibility(View.GONE);
@@ -103,8 +103,7 @@ public class AdminManageLocationsActivity extends AppCompatActivity {
                         locationList.clear();
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             try {
-                                LocationModel location = doc.toObject(LocationModel.class);
-                                locationList.add(location);
+                                locationList.add(doc.toObject(LocationModel.class));
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -168,7 +167,7 @@ public class AdminManageLocationsActivity extends AppCompatActivity {
         FirebaseFirestore.getInstance().collection(currentCollection).document().set(model)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Cloud Injection Successful!", Toast.LENGTH_SHORT).show();
-                    loadLocations(); // Refresh list automatically
+                    loadLocations(); 
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Deployment Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }

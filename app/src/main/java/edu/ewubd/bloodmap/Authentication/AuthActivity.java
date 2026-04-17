@@ -105,16 +105,22 @@ public class AuthActivity extends AppCompatActivity {
         if (isLoginMode) {
             mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
-                        if (mAuth.getCurrentUser() != null) {
-                            checkAdminAndRoute(mAuth.getCurrentUser().getUid());
+                    try {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
+                            if (mAuth.getCurrentUser() != null) {
+                                checkAdminAndRoute(mAuth.getCurrentUser().getUid());
+                            } else {
+                                startMainActivity();
+                            }
                         } else {
-                            startMainActivity();
+                            setLoading(false);
+                            String msg = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                            Toast.makeText(this, "Authentication failed: " + msg, Toast.LENGTH_LONG).show();
                         }
-                    } else {
+                    } catch (Exception ex) {
                         setLoading(false);
-                        Toast.makeText(this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Unexpected error: " + ex.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
         } else {
@@ -126,23 +132,29 @@ public class AuthActivity extends AppCompatActivity {
             }
             mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            UserModel model = new UserModel(user.getUid(), name, email);
-                            db.collection("users").document(user.getUid()).set(model)
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(this, "Sign up successful!", Toast.LENGTH_SHORT).show();
-                                    checkAdminAndRoute(user.getUid());
-                                })
-                                .addOnFailureListener(e -> {
-                                    setLoading(false);
-                                    Toast.makeText(this, "Failed to save user info: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                });
+                    try {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user != null) {
+                                UserModel model = new UserModel(user.getUid(), name, email);
+                                db.collection("users").document(user.getUid()).set(model)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(this, "Sign up successful!", Toast.LENGTH_SHORT).show();
+                                        checkAdminAndRoute(user.getUid());
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        setLoading(false);
+                                        Toast.makeText(this, "Failed to save user info: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                    });
+                            }
+                        } else {
+                            setLoading(false);
+                            String msg = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                            Toast.makeText(this, "Sign up failed: " + msg, Toast.LENGTH_LONG).show();
                         }
-                    } else {
+                    } catch (Exception ex) {
                         setLoading(false);
-                        Toast.makeText(this, "Sign up failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Unexpected error: " + ex.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
         }

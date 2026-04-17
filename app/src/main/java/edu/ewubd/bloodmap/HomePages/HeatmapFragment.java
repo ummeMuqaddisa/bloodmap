@@ -215,9 +215,8 @@ public class HeatmapFragment extends Fragment {
                     if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
                         m.closeInfoWindow(); // Close cleanly first
                         if (rgMapMode.getCheckedRadioButtonId() == R.id.rbDonors) {
-                            edu.ewubd.bloodmap.HomePages.availableFrag.AvailableFragment.pendingSearchQuery = title;
                             if (requireActivity() instanceof edu.ewubd.bloodmap.MainActivity) {
-                                ((edu.ewubd.bloodmap.MainActivity) requireActivity()).selectTab(2);
+                                ((edu.ewubd.bloodmap.MainActivity) requireActivity()).navigateToAvailableWithQuery(title);
                             }
                         } else if (rgMapMode.getCheckedRadioButtonId() == R.id.rbHospitals) {
                             android.content.Intent intent = new android.content.Intent(requireContext(), HospitalContactsActivity.class);

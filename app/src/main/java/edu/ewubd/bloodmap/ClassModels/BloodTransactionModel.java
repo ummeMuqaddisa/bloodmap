@@ -100,4 +100,18 @@ public class BloodTransactionModel {
     private boolean premiumRequest;
     public boolean isPremiumRequest() { return premiumRequest; }
     public void setPremiumRequest(boolean premiumRequest) { this.premiumRequest = premiumRequest; }
+
+    public String formatPatientDetails() {
+        StringBuilder sb = new StringBuilder("Patient: ").append(patientName != null ? patientName : "Unknown");
+        if (patientAge != null && !patientAge.isEmpty()) {
+            sb.append(" (Age: ").append(patientAge);
+            if (patientGender != null && !patientGender.isEmpty()) {
+                sb.append(", Gender: ").append(patientGender);
+            }
+            sb.append(")");
+        } else if (patientGender != null && !patientGender.isEmpty()) {
+            sb.append(" (Gender: ").append(patientGender).append(")");
+        }
+        return sb.toString();
+    }
 }

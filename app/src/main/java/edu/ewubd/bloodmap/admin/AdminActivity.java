@@ -26,6 +26,8 @@ public class AdminActivity extends AppCompatActivity {
     private TextView tvUsersCount, tvHospitalsCount, tvBloodBanksCount;
     private TextView  tvActiveRequestsCount, tvCompletedRequestsCount, tvAvailableDonorsCount;
 
+    private com.google.firebase.firestore.ListenerRegistration usersReg, donorsReg, hospitalsReg, banksReg, activeReqReg, completedReqReg;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,9 +51,20 @@ public class AdminActivity extends AppCompatActivity {
         findViewById(R.id.menu_previous_requests).setOnClickListener(v -> closeDrawerAndStartAdminRequests("COMPLETED"));
         
         findViewById(R.id.menu_logout_admin).setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(this, AuthActivity.class));
-            finish();
+            String uid = FirebaseAuth.getInstance().getUid();
+            if (uid != null) {
+                FirebaseFirestore.getInstance().collection("users").document(uid)
+                        .update("token", null)
+                        .addOnCompleteListener(task -> {
+                            FirebaseAuth.getInstance().signOut();
+                            startActivity(new Intent(this, AuthActivity.class));
+                            finish();
+                        });
+            } else {
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(this, AuthActivity.class));
+                finish();
+            }
         });
 
 
@@ -63,75 +76,55 @@ public class AdminActivity extends AppCompatActivity {
         loadDashboardStats();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (usersReg != null) { usersReg.remove(); usersReg = null; }
+        if (donorsReg != null) { donorsReg.remove(); donorsReg = null; }
+        if (hospitalsReg != null) { hospitalsReg.remove(); hospitalsReg = null; }
+        if (banksReg != null) { banksReg.remove(); banksReg = null; }
+        if (activeReqReg != null) { activeReqReg.remove(); activeReqReg = null; }
+        if (completedReqReg != null) { completedReqReg.remove(); completedReqReg = null; }
+    }
+
     private void loadDashboardStats() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        
-        // Show loading state
+
         tvUsersCount.setText("...");
         tvAvailableDonorsCount.setText("...");
         tvHospitalsCount.setText("...");
         tvBloodBanksCount.setText("...");
         tvActiveRequestsCount.setText("...");
         tvCompletedRequestsCount.setText("...");
- 
-        db.collection("users").addSnapshotListener(this, (snapshots, e) -> {
-            if (e != null) {
-                tvUsersCount.setText("Error");
-                return;
-            }
-            if (snapshots != null) {
-                tvUsersCount.setText(String.valueOf(snapshots.size()));
-            }
-        });
- 
-        db.collection("users").whereEqualTo("availableToDonate", true).addSnapshotListener(this, (snapshots, e) -> {
-            if (e != null) {
-                tvAvailableDonorsCount.setText("Error");
-                return;
-            }
-            if (snapshots != null) {
-                tvAvailableDonorsCount.setText(String.valueOf(snapshots.size()));
-            }
-        });
- 
-        db.collection("hospitals").addSnapshotListener(this, (snapshots, e) -> {
-            if (e != null) {
-                tvHospitalsCount.setText("Error");
-                return;
-            }
-            if (snapshots != null) {
-                tvHospitalsCount.setText(String.valueOf(snapshots.size()));
-            }
-        });
- 
-        db.collection("blood_banks").addSnapshotListener(this, (snapshots, e) -> {
-            if (e != null) {
-                tvBloodBanksCount.setText("Error");
-                return;
-            }
-            if (snapshots != null) {
-                tvBloodBanksCount.setText(String.valueOf(snapshots.size()));
-            }
-        });
- 
-        db.collection("transactions").whereEqualTo("status", "OPEN").addSnapshotListener(this, (snapshots, e) -> {
-            if (e != null) {
-                tvActiveRequestsCount.setText("Error");
-                return;
-            }
-            if (snapshots != null) {
-                tvActiveRequestsCount.setText(String.valueOf(snapshots.size()));
-            }
+
+        usersReg = db.collection("users").addSnapshotListener(this, (snapshots, e) -> {
+            if (e != null) { tvUsersCount.setText("Error"); return; }
+            if (snapshots != null) tvUsersCount.setText(String.valueOf(snapshots.size()));
         });
 
-        db.collection("transactions").whereEqualTo("status", "COMPLETED").addSnapshotListener(this, (snapshots, e) -> {
-            if (e != null) {
-                tvCompletedRequestsCount.setText("Error");
-                return;
-            }
-            if (snapshots != null) {
-                tvCompletedRequestsCount.setText(String.valueOf(snapshots.size()));
-            }
+        donorsReg = db.collection("users").whereEqualTo("availableToDonate", true).addSnapshotListener(this, (snapshots, e) -> {
+            if (e != null) { tvAvailableDonorsCount.setText("Error"); return; }
+            if (snapshots != null) tvAvailableDonorsCount.setText(String.valueOf(snapshots.size()));
+        });
+
+        hospitalsReg = db.collection("hospitals").addSnapshotListener(this, (snapshots, e) -> {
+            if (e != null) { tvHospitalsCount.setText("Error"); return; }
+            if (snapshots != null) tvHospitalsCount.setText(String.valueOf(snapshots.size()));
+        });
+
+        banksReg = db.collection("blood_banks").addSnapshotListener(this, (snapshots, e) -> {
+            if (e != null) { tvBloodBanksCount.setText("Error"); return; }
+            if (snapshots != null) tvBloodBanksCount.setText(String.valueOf(snapshots.size()));
+        });
+
+        activeReqReg = db.collection("transactions").whereEqualTo("status", "OPEN").addSnapshotListener(this, (snapshots, e) -> {
+            if (e != null) { tvActiveRequestsCount.setText("Error"); return; }
+            if (snapshots != null) tvActiveRequestsCount.setText(String.valueOf(snapshots.size()));
+        });
+
+        completedReqReg = db.collection("transactions").whereEqualTo("status", "COMPLETED").addSnapshotListener(this, (snapshots, e) -> {
+            if (e != null) { tvCompletedRequestsCount.setText("Error"); return; }
+            if (snapshots != null) tvCompletedRequestsCount.setText(String.valueOf(snapshots.size()));
         });
     }
 
@@ -151,12 +144,6 @@ public class AdminActivity extends AppCompatActivity {
         }
     }
 
-    private void closeDrawerAndToast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        }
-    }
 
     @Override
     public void onBackPressed() {
