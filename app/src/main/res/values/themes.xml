@@ -2,7 +2,10 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Bloodmap" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:popupBackground">#FFFFFF</item>
+        <item name="android:windowBackground">#FFFFFF</item>
+        <item name="android:colorBackground">#FFFFFF</item>
+        <item name="colorSurface">#FFFFFF</item>
     </style>
 
     <style name="Theme.Bloodmap" parent="Base.Theme.Bloodmap" />

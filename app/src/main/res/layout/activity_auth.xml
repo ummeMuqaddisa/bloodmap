@@ -29,15 +29,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="24dp"
-            android:src="@android:drawable/ic_menu_help"
-            app:tint="#4A4A4A"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Blood Drop Logo -->
         <ImageView
@@ -270,7 +261,6 @@
                             android:text="I agree to the Terms of Service and Privacy Policy regarding clinical data."
                             android:textColor="#4B5563"
                             android:textSize="13sp"
-                            android:visibility="gone"
                             tools:visibility="visible" />
 
                     <!-- Submit Button -->

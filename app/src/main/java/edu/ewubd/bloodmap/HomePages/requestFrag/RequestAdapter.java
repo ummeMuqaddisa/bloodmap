@@ -121,7 +121,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                 holder.btnRespond.setEnabled(false);
             } else {
                 holder.btnRespond.setText("RESPOND");
-                holder.btnRespond.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#D11A2A")));
+                holder.btnRespond.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#800000")));
                 holder.btnRespond.setEnabled(true);
             }
  

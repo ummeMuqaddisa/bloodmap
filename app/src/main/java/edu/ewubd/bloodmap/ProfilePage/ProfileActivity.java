@@ -290,7 +290,6 @@ public class ProfileActivity extends AppCompatActivity {
         boolean isNowAvailable = swAvailableToDonate.isChecked();
         currentModel.setAvailableToDonate(isNowAvailable);
 
-        // If turning availability ON manually, clear the nextEligibleDate so they are immediately eligible
         if (isNowAvailable) {
             currentModel.setNextEligibleDate(null);
         }

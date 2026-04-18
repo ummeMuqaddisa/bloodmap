@@ -46,6 +46,18 @@ public class NotificationSender {
         }).start();
     }
 
+    public static void sendAdminBroadcast(Context context, String targetToken, String title, String body) {
+        new Thread(() -> {
+            try {
+                String accessToken = getAccessToken(context);
+                if (accessToken == null) return;
+                sendFcmMessage(context, accessToken, targetToken, title, body, "GENERAL_BROADCAST", null, "Admin");
+            } catch (Exception e) {
+                Log.e("NotificationSender", "Error sending admin broadcast", e);
+            }
+        }).start();
+    }
+
     private static void sendFcmMessage(Context context, String accessToken, String targetToken, String title, String body, String type, String transactionId, String extra) throws Exception {
         URL url = new URL(FCM_V1_URL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

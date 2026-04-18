@@ -12,18 +12,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="20dp">
-
-        <!-- ── Page Header ── -->
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Fill in the details below to broadcast a blood request to eligible donors."
-            android:textColor="#777777"
-            android:textSize="13sp"
-            android:lineSpacingExtra="2dp"
-            android:layout_marginBottom="20dp" />
-
         <!-- ── Patient Details Card ── -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"

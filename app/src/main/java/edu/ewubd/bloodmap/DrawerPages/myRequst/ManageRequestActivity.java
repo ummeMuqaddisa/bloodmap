@@ -230,7 +230,7 @@ public class ManageRequestActivity extends AppCompatActivity implements Responde
                         Calendar cal = Calendar.getInstance();
 
                         //cooldown time
-                        cal.add(Calendar.DAY_OF_YEAR, 90);
+                        cal.add(Calendar.DAY_OF_YEAR, 30);
                         userUpdates.put("nextEligibleDate", cal.getTime());
                         userUpdates.put("availableToDonate", false);
 
