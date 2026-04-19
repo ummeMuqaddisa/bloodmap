@@ -185,9 +185,6 @@ public class ProfileActivity extends AppCompatActivity {
     }
     
     private void fetchFirebaseAreas() {
-        areaAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, locationAreaList);
-        etLocation.setAdapter(areaAdapter);
-
         db.collection("locations_areas").get().addOnSuccessListener(queryDocumentSnapshots -> {
             locationAreaList.clear();
             for (com.google.firebase.firestore.QueryDocumentSnapshot doc : queryDocumentSnapshots) {
@@ -198,7 +195,8 @@ public class ProfileActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            areaAdapter.notifyDataSetChanged();
+            areaAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, locationAreaList);
+            etLocation.setAdapter(areaAdapter);
         });
     }
 

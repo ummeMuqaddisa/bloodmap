@@ -645,7 +645,8 @@
                     android:background="#FFFFFF"
                     android:elevation="1dp"
                     android:layout_marginBottom="12dp"
-                    android:completionThreshold="1"/>
+                    android:completionThreshold="1"
+                    android:inputType="text"/>
 
                 <EditText
                     android:id="@+id/etAddress"
