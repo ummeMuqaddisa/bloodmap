@@ -97,6 +97,7 @@
                     android:background="#A30F24" />
 
                 <LinearLayout
+                    android:background="@color/white"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -125,28 +126,24 @@
                             android:textSize="11sp"
                             android:textStyle="bold" />
 
-                        <com.google.android.material.card.MaterialCardView
+                        <FrameLayout
                             android:layout_width="match_parent"
                             android:layout_height="54dp"
-                            app:cardBackgroundColor="#FFFFFF"
-                            app:cardCornerRadius="8dp"
-                            app:cardElevation="0dp"
-                            app:strokeColor="#E5E7EB"
-                            app:strokeWidth="1dp">
+                            android:background="@drawable/bg_field_input">
 
                             <EditText
                                 android:id="@+id/etName"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:background="@null"
-                                android:hint="Johnathan Doe"
+                                android:background="@android:color/transparent"
+                                android:hint="First Second"
                                 android:inputType="textPersonName"
                                 android:paddingStart="16dp"
                                 android:paddingEnd="16dp"
                                 android:textColor="#111827"
                                 android:textColorHint="#9CA3AF"
                                 android:textSize="15sp" />
-                        </com.google.android.material.card.MaterialCardView>
+                        </FrameLayout>
                     </LinearLayout>
 
                     <!-- Email Layout -->
@@ -166,28 +163,24 @@
                             android:textSize="11sp"
                             android:textStyle="bold" />
 
-                        <com.google.android.material.card.MaterialCardView
+                        <FrameLayout
                             android:layout_width="match_parent"
                             android:layout_height="54dp"
-                            app:cardBackgroundColor="#FFFFFF"
-                            app:cardCornerRadius="8dp"
-                            app:cardElevation="0dp"
-                            app:strokeColor="#E5E7EB"
-                            app:strokeWidth="1dp">
+                            android:background="@drawable/bg_field_input">
 
                             <EditText
                                 android:id="@+id/etEmail"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:background="@null"
-                                android:hint="name@clinical.com"
+                                android:background="@android:color/transparent"
+                                android:hint="name@gmail.com"
                                 android:inputType="textEmailAddress"
                                 android:paddingStart="16dp"
                                 android:paddingEnd="16dp"
                                 android:textColor="#111827"
                                 android:textColorHint="#9CA3AF"
                                 android:textSize="15sp" />
-                        </com.google.android.material.card.MaterialCardView>
+                        </FrameLayout>
                     </LinearLayout>
 
                     <!-- Password Layout -->
@@ -224,20 +217,16 @@
                                 android:visibility="gone" />
                         </RelativeLayout>
 
-                        <com.google.android.material.card.MaterialCardView
+                        <FrameLayout
                             android:layout_width="match_parent"
                             android:layout_height="54dp"
-                            app:cardBackgroundColor="#FFFFFF"
-                            app:cardCornerRadius="8dp"
-                            app:cardElevation="0dp"
-                            app:strokeColor="#E5E7EB"
-                            app:strokeWidth="1dp">
+                            android:background="@drawable/bg_field_input">
 
                             <EditText
                                 android:id="@+id/etPassword"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:background="@null"
+                                android:background="@android:color/transparent"
                                 android:hint="••••••••"
                                 android:inputType="textPassword"
                                 android:paddingStart="16dp"
@@ -245,7 +234,7 @@
                                 android:textColor="#111827"
                                 android:textColorHint="#9CA3AF"
                                 android:textSize="15sp" />
-                        </com.google.android.material.card.MaterialCardView>
+                        </FrameLayout>
                     </LinearLayout>
 
                         <!-- DUMMY CODE SECTION: Terms CheckBox -->
@@ -258,8 +247,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="32dp"
                             android:buttonTint="#A30F24"
-                            android:text="I agree to the Terms of Service and Privacy Policy regarding clinical data."
+                            android:text="I agree to the Terms of Service and Privacy Policy."
                             android:textColor="#4B5563"
+                            android:visibility="gone"
                             android:textSize="13sp"
                             tools:visibility="visible" />
 
@@ -305,6 +295,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cardForm" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOfflineMode"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="54dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:text="Continue Offline"
+            android:textAllCaps="false"
+            android:textColor="#A30F24"
+            android:textSize="15sp"
+            app:cornerRadius="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvSwitchMode"
+            app:strokeColor="#A30F24"
+            app:strokeWidth="1dp" />
+
         <!-- Footer -->
         <TextView
             android:layout_width="0dp"
@@ -317,11 +326,9 @@
             android:textColor="#9CA3AF"
             android:textSize="11sp"
             android:letterSpacing="0.05"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvSwitchMode"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintTop_toBottomOf="@id/btnOfflineMode" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

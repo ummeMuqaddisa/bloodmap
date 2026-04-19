@@ -28,6 +28,7 @@ public class AuthActivity extends AppCompatActivity {
     private Button btnSubmit;
     private TextView tvSwitchMode;
     private android.widget.ProgressBar progressBar;
+    private android.widget.CheckBox cbTerms;
     
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -55,6 +56,7 @@ public class AuthActivity extends AppCompatActivity {
         btnSubmit = findViewById(R.id.btnSubmit);
         tvSwitchMode = findViewById(R.id.tvSwitchMode);
         progressBar = findViewById(R.id.progressBar);
+        cbTerms = findViewById(R.id.cbTerms);
 
         tvSwitchMode.setOnClickListener(v -> {
             isLoginMode = !isLoginMode;
@@ -62,6 +64,10 @@ public class AuthActivity extends AppCompatActivity {
         });
 
         btnSubmit.setOnClickListener(v -> handleAuth());
+
+        findViewById(R.id.btnOfflineMode).setOnClickListener(v -> {
+            startActivity(new Intent(AuthActivity.this, edu.ewubd.bloodmap.OfflineMode.OfflineDashboardActivity.class));
+        });
     }
 
     private void setLoading(boolean isLoading) {
@@ -81,11 +87,13 @@ public class AuthActivity extends AppCompatActivity {
         if (isLoginMode) {
             tvTitle.setText("Login");
             llName.setVisibility(View.GONE);
+            cbTerms.setVisibility(View.GONE);
             btnSubmit.setText("Login");
             tvSwitchMode.setText("Don't have an account? Sign Up");
         } else {
             tvTitle.setText("Sign Up");
             llName.setVisibility(View.VISIBLE);
+            cbTerms.setVisibility(View.VISIBLE);
             btnSubmit.setText("Sign Up");
             tvSwitchMode.setText("Already have an account? Login");
         }
@@ -98,6 +106,18 @@ public class AuthActivity extends AppCompatActivity {
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please fill all required fields", Toast.LENGTH_SHORT).show();
             return;
+        }
+
+        if (!isLoginMode) {
+            if (!cbTerms.isChecked()) {
+                Toast.makeText(this, "You must agree to the terms to sign up.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String name = etName.getText().toString().trim();
+            if (name.isEmpty()) {
+                Toast.makeText(this, "Please enter your name", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
 
         setLoading(true);
@@ -125,11 +145,6 @@ public class AuthActivity extends AppCompatActivity {
                 });
         } else {
             String name = etName.getText().toString().trim();
-            if (name.isEmpty()) {
-                setLoading(false);
-                Toast.makeText(this, "Please enter your name", Toast.LENGTH_SHORT).show();
-                return;
-            }
             mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     try {
@@ -167,7 +182,7 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void checkAdminAndRoute(String uid) {
-        setLoading(true); // Ensure loading is shown during role check
+        setLoading(true); 
         db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 UserModel user = documentSnapshot.toObject(UserModel.class);
